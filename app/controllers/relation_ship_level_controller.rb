@@ -1,0 +1,2 @@
+class RelationShipLevelController < ApplicationController
+end

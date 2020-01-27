@@ -1,0 +1,29 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  fname: MyString
+  lname: MyString
+  mname: MyString
+  othername: MyString
+  email: MyString
+  mobile: MyString
+  dob: MyString
+  bgroup: MyString
+  isalive: MyString
+  childorder: MyString
+  relation_id: 1
+  user_id: 1
+
+two:
+  fname: MyString
+  lname: MyString
+  mname: MyString
+  othername: MyString
+  email: MyString
+  mobile: MyString
+  dob: MyString
+  bgroup: MyString
+  isalive: MyString
+  childorder: MyString
+  relation_id: 1
+  user_id: 1

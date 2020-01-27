@@ -1,0 +1,51 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  userid: MyString
+  fname: MyString
+  lname: MyString
+  middlename: MyString
+  familyname: MyString
+  email: MyString
+  mobile: MyString
+  dob: MyString
+  gender: MyString
+  bloodgroup: MyString
+  nVillage: MyString
+  nTaluka: MyString
+  nDistrict: MyString
+  nCity: MyString
+  nState: MyString
+  nCountry: MyString
+  cVillage: MyString
+  cTaluka: MyString
+  cDistrict: MyString
+  cCity: MyString
+  cState: MyString
+  cCountry: MyString
+  profile_pic_path: MyString
+
+two:
+  userid: MyString
+  fname: MyString
+  lname: MyString
+  middlename: MyString
+  familyname: MyString
+  email: MyString
+  mobile: MyString
+  dob: MyString
+  gender: MyString
+  bloodgroup: MyString
+  nVillage: MyString
+  nTaluka: MyString
+  nDistrict: MyString
+  nCity: MyString
+  nState: MyString
+  nCountry: MyString
+  cVillage: MyString
+  cTaluka: MyString
+  cDistrict: MyString
+  cCity: MyString
+  cState: MyString
+  cCountry: MyString
+  profile_pic_path: MyString

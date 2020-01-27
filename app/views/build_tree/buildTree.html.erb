@@ -1,0 +1,366 @@
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<div class="container" id="container">
+<h4>Start Building your Family Tree...</h4>
+          <% if user_signed_in? %>
+
+
+<!-- Search form -->
+<div class="row">
+  <div class="col-sm-8">
+  
+<!-- Current User grid -->
+  <div class="profile_container">
+    <div class="row">
+    <% @user_details = Profile.find_by(userid:current_user.id.to_s) %>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="well well-sm">
+                <div class="row">
+                    <div class="col-sm-6 col-md-4">
+                      <% if @user_details.avatar? %>
+      <%= image_tag @user_details.avatar.url(:thumb), :class => "img-rounded img-responsive" %>
+    <% end %>
+                       
+                    </div>
+                    <div class="col-sm-6 col-md-8">
+                        <h4>
+                        <%= @user_details.fname + " " +@user_details.lname %></h4>
+                        <small><cite title="San Francisco, USA">San Francisco, USA <i class="glyphicon glyphicon-map-marker">
+                        </i></cite></small>
+                        <p>
+                            <i class="glyphicon glyphicon-envelope"></i><%= @user_details.email %>
+                            <br />
+                            <!-- <i class="glyphicon glyphicon-globe"></i><a href="http://www.jquery2dotnet.com">www.jquery2dotnet.com</a>
+                            <br /> -->
+                            <i class="glyphicon glyphicon-gift"></i><%= @user_details.dob %></p>
+                        <!-- Split button -->
+                      
+                        <button type="button" class="btn btn-Success">View My Profile</button>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        <a href="/show_tree">View Tree </a>
+        <button id="btn-invite" type="button" class="btn btn-success" data-toggle="modal" data-target="#invite_mem">
+        View My Family Tree
+      </button>
+
+    </div>
+    
+</div>
+
+
+<!-- All profile grids -->
+<% @profiles = Profile.all.where(:userid => current_user.id) %>
+<% @profiles.each do | profile| %>
+<% if profile.email != current_user.email %>
+<div class="profile_container">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="well well-sm">
+                <div class="row">
+                <div class="relation_name"><%= profile.relation_type %>  </div>
+                    <div class="col-sm-6 col-md-4">
+                          <% if profile.avatar? %>
+      <%= image_tag profile.avatar.url(:thumb), :class => "img-rounded img-responsive" %>
+    <% end %>
+                    </div>
+                    <div class="col-sm-6 col-md-8">
+                        <h4>
+                        <%= profile.fname  %> </h4>
+                        <small><cite title="San Francisco, USA">San Francisco, USA <i class="glyphicon glyphicon-map-marker">
+                        </i></cite></small>
+                        <p>
+                            <i class="glyphicon glyphicon-envelope"></i><%= profile.email %>
+                            <br />
+                           <!--  <i class="glyphicon glyphicon-globe"></i><a href="http://www.jquery2dotnet.com">www.jquery2dotnet.com</a>
+                            <br /> -->
+                            <i class="glyphicon glyphicon-gift"></i><%= profile.dob %></p>
+                        <!-- Split button -->
+                        <%= link_to "View Profile",view_profile_path(:id=>profile.id),:class => "btn btn-info" %>
+          <div class="add_relations">
+          <div class="dropdown">
+          <button  id="btn-relation" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+            Add a Relation
+          </button>
+          <div class="dropdown-menu">
+            <ul id="div_relation">
+              <li value=1><a href="" class="dropdown-item" data-toggle="modal" data-query="" data-target="#response" >Father</a></li>
+              <li value=2><a href="" class="dropdown-item" data-toggle="modal"  data-target="#response">Mother</a></li>
+              <li value=5><a href="" class="dropdown-item" data-toggle="modal" data-target="#response">Brother</a></li>
+              <li value=6><a href="" class="dropdown-item" data-toggle="modal" data-target="#response">Sister</a></li>
+              <li value=3><a href="" class="dropdown-item" data-toggle="modal" data-target="#response">Son</a></li>
+              <li value=4><a href="" class="dropdown-item" data-toggle="modal" data-target="#response">Daughter</a></li>
+              <li value=9><a href="" class="dropdown-item" data-toggle="modal" data-target="#response">Spouse</a></li>
+            </ul>
+          </div>
+          </div>
+          </div>
+
+
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary">
+                                Social</button>
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret"></span><span class="sr-only">Social</span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="#">Twitter</a></li>
+                                <li><a href="https://plus.google.com/+Jquery2dotnet/posts">Google +</a></li>
+                                <li><a href="https://www.facebook.com/jquery2dotnet">Facebook</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+</div>
+<% end %>
+<% end %>
+
+          <% else # user not signed it %>
+          <h3 class="app__main__title">Welcome to xPidhi..</h3>
+
+          <% end # if user is signed it %>
+      </div>
+
+      <div class="col-sm-3">
+        <div class="add_relations">
+          <div class="dropdown">
+          <button  id="btn-relation" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+            Add a Relation
+          </button>
+          <div class="dropdown-menu">
+            <ul id="div_relation">
+              <li value=1><a href="" class="dropdown-item" data-toggle="modal" data-relation='father' data-target="#response" >Father</a></li>
+              <li value=2><a href="" class="dropdown-item" data-toggle="modal" data-relation='mother' data-query="marriages" data-target="#response">Mother</a></li>
+              <li value=5><a href="" class="dropdown-item" data-toggle="modal" data-relation='brother' data-query="marriages.0.children" data-target="#response">Brother</a></li>
+              <li value=6><a href="" class="dropdown-item" data-toggle="modal" data-relation='sister' data-query="marriages.0.children" data-target="#response">Sister</a></li>
+              <li value=3><a href="" class="dropdown-item" data-toggle="modal" data-relation='son' data-target="#response">Son</a></li>
+              <li value=4><a href="" class="dropdown-item" data-toggle="modal" data-relation='daughter' data-target="#response">Daughter</a></li>
+              <li value=9><a href="" class="dropdown-item" data-toggle="modal" data-relation='spouse' data-query="marriages.0.children.0.marriages" data-target="#response">Spouse</a></li>
+              
+            </ul>
+          </div>
+
+          <button id="btn-invite" type="button" class="btn btn-warning" data-toggle="modal" data-target="#invite_mem">
+            Invite a Member
+          </button>
+        </div>
+
+        </div>
+        </div>
+</div>
+
+
+<!-- data modal for adding relationships -->
+
+<div class="modal" id="response">
+<div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title"> </h5>
+      <button class="close" data-dismiss="modal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="list-group">
+        <div class="d-flex w-100 justify-content-between">
+          <div class="row">
+            <%= bootstrap_form_tag :url => "/build_profile", :remote => true, :html => {
+                                                  :id => 'regForm', :name => 'relationDetails,', :'data-ajax' => false, :multipart => true } do |f| %>
+                    <div class="col-md-6">
+                      <%= f.hidden_field :relation_id, value:""%>
+                      <%= f.hidden_field :relation_type %>
+
+                      <%= f.text_field :fname, label: "First Name",
+                              placeholder: 'FirstName...',
+                              class: 'form-control' %>
+                      <%= f.text_field :midname, label: "Middle Name",
+                              placeholder: 'MiddleName...',
+                              class: 'form-control' %>
+                    </div>
+
+                     <div class="col-md-6">
+                       <%= f.text_field :flastname, label: " Last Name",
+                               placeholder: 'LastName...',
+                               class: 'form-control' %>
+
+                               <%= f.text_field :otherNames, label: "Any other Names",
+                                       placeholder: 'Known by other Names...',
+                                       class: 'form-control' %>
+                     </div>
+
+                  <div class="col-md-6">
+                    <%= f.email_field :email,  label: "Email",
+                              placeholder: 'email' ,
+                              class: 'form-control' %>
+
+                    </div>
+                        <div class="col-md-6">
+                  <%= f.file_field "avatar" %>
+
+        </div>
+                  <div class="col-md-6">
+                    <%= f.phone_field :mobile, label: "Mobile No",
+                            placeholder:'Mobile' ,
+                            class: 'form-control' %>
+                  </div>
+
+                  <div class="col-md-6">
+                    <%= f.date_field :dob, label: "Date of Birth",
+                            placeholder: 'Date of Birth...',
+                            class: 'form-control' %>
+
+                    <%= f.select :bloodgroup, [["O+", 1], ["O-", 2],["A+",3],["A-",4]], { class: "selectpicker" } %>
+                    </div>
+
+                    <div class="col-md-6">
+                      <%= f.select :living, [["Alive", 1], ["Dead", 2]], { class: "selectpicker", label:"Is Living" } %>
+                      <%= f.select :kid1order, [[1, 1], [2, 2],[3, 3],[4, 4],[5, 5],[6, 6],[7, 7],[8, 8]], { class: "selectpicker",label:"Child Order" } %>
+        </div>
+        <div id="div-extraname" class="col-md-6" style="display:none">
+                  <%= f.text_field :beforemarriageName, label: "Other Names Before Marriage",
+                          placeholder: 'Middle names before Marriage...',
+                          class: 'form-control' %>
+
+        </div>
+         
+       
+      </div>
+    </div>
+  </div>
+      <div class="modal-footer">
+        <%= f.submit "Add Details", class:"btn btn-success" %>
+        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<!-- invite member modal -->
+
+<div class="modal" id="invite_mem">
+<div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title"> </h5>
+      <button class="close" data-dismiss="modal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="list-group">
+        <div class="d-flex w-100 justify-content-between">
+          <div class="row">
+            <%= bootstrap_form_tag url: '/send_invite',  :html => {
+                                                  :id => 'regForm', :name => 'relationDetails,' } do |f| %>
+                    <div class="col-md-6">
+                      <%= f.hidden_field :relation_id, value:""%>
+
+                      <%= f.email_field :invite_email, label: "Enter The email id",
+                              placeholder: 'email addreass...',
+                              class: 'form-control' %>
+                      <%= f.text_area :invite_message, label: "Message",
+                              placeholder: 'add a short note ...',
+                              class: 'form-control' %>
+                    </div>
+                 </div>
+
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <%= f.submit "Send Invitation", class:"btn btn-danger" %>
+        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+</div>
+
+<style media="screen">
+.relation_name {
+  background: #d68a08;
+    height: 2rem;
+    top: 0rem;
+    right: 15px;
+    width: 8rem;
+    text-align: center;
+    line-height: 2rem;
+    font-size: 1rem;
+    color: white;
+    border: 1px solid #d68a08; 
+    position: absolute;
+}
+
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  transition: 0.3s;
+  width: 100%;
+}
+
+.avatar {
+  vertical-align: middle;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+
+
+  .dropdown-menu {
+      background: #fff !important;
+      border: none;
+}
+#btn-relation,
+#btn-invite{
+          display: inline-block;
+          vertical-align: top;
+          margin:10;
+      }
+</style>
+
+<script type="text/javascript">
+$(function(){
+  $("#div_relation li").on('click', function(){
+    //var value = $("#div_relation select option:selected").val();
+    //alert($(this).text());
+    $("#relation_id").val($(this).val());
+    //$("#relation_type").val($(this).text());
+    var x = document.getElementById("div-extraname");
+      if($(this).val() =='2' || $(this).val() =='8' || $(this).val() =='10' ){
+        x.style.display = "block";
+      }else {
+        x.style.display = "none";
+      }
+  });
+
+/*$("#regForm").submit(function(event){
+  event.preventDefault();
+    $.ajax({
+      type: "POST",
+      url: '/build_profile',
+      data: $(this).serialize(),
+      success: function(response) {
+        $('#response').modal('hide');
+      }
+    });
+    event.preventDefault();
+  });*/
+});
+
+
+$(document).on("click", ".dropdown-item", function () {
+     var query = $(this).data('query');
+    var relation = $(this).data('relation');
+     $(".modal-body #query").val( query );
+    $(".modal-body #relation_type").val( relation );
+});
+
+
+
+</script>

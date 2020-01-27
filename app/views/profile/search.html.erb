@@ -1,0 +1,106 @@
+
+
+<div class="searchprofile">
+	<%= form_tag '#', method: :get do %>
+  <%= text_field_tag 'search', params[:search], placeholder: "Enter user's name or surname"  %>
+  <%= submit_tag 'Search!',id: "search-btn" %>
+<% end %>
+<% @profiles.each do | profile| %>
+<% if profile.email != current_user.email %>
+<div class="profile_container">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="well well-sm">
+                <div class="row">
+                <div class="relation_name"><%= profile.relation_type %>  </div>
+                    <div class="col-sm-6 col-md-4">
+                          <% if profile.avatar? %>
+      <%= image_tag profile.avatar.url(:thumb), :class => "img-rounded img-responsive" %>
+    <% end %>
+                    </div>
+                    <div class="col-sm-6 col-md-8">
+                        <h4>
+                        <%= profile.fname  %> </h4>
+                        <small><cite title="San Francisco, USA">San Francisco, USA <i class="glyphicon glyphicon-map-marker">
+                        </i></cite></small>
+                        <p>
+                            <i class="glyphicon glyphicon-envelope"></i><%= profile.email %>
+                            <br />
+                           <!--  <i class="glyphicon glyphicon-globe"></i><a href="http://www.jquery2dotnet.com">www.jquery2dotnet.com</a>
+                            <br /> -->
+                            <i class="glyphicon glyphicon-gift"></i><%= profile.dob %></p>
+                        <!-- Split button -->
+                        <%= link_to "View Profile",view_profile_path(:id=>profile.id),:class => "btn btn-info" %>
+          <div class="add_relations">
+          <div class="dropdown">
+          <button  id="btn-relation" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+            Add a Relation
+          </button>
+          <div class="dropdown-menu">
+            <ul id="div_relation">
+              <li value=1><a href="" class="dropdown-item" data-toggle="modal" data-query="" data-target="#response" >Father</a></li>
+              <li value=2><a href="" class="dropdown-item" data-toggle="modal"  data-target="#response">Mother</a></li>
+              <li value=5><a href="" class="dropdown-item" data-toggle="modal" data-target="#response">Brother</a></li>
+              <li value=6><a href="" class="dropdown-item" data-toggle="modal" data-target="#response">Sister</a></li>
+              <li value=3><a href="" class="dropdown-item" data-toggle="modal" data-target="#response">Son</a></li>
+              <li value=4><a href="" class="dropdown-item" data-toggle="modal" data-target="#response">Daughter</a></li>
+              <li value=9><a href="" class="dropdown-item" data-toggle="modal" data-target="#response">Spouse</a></li>
+            </ul>
+          </div>
+          </div>
+          </div>
+
+
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary">
+                                Social</button>
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret"></span><span class="sr-only">Social</span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="#">Twitter</a></li>
+                                <li><a href="https://plus.google.com/+Jquery2dotnet/posts">Google +</a></li>
+                                <li><a href="https://www.facebook.com/jquery2dotnet">Facebook</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+
+</div>
+<% end %>
+<% end %>
+</div>
+<script type="text/javascript">
+var searchRequest = null;
+
+$(function () {
+    var minlength = 3;
+
+    $("#search").keyup(function () {
+        var that = this,
+        value = $(this).val();
+
+        if (value.length >= minlength ) {
+           // if (searchRequest != null) 
+                //searchRequest.abort();
+            searchRequest = $.ajax({
+                type: "GET",
+                url: "/search",
+                data: {
+                    'search' : value
+                },
+                dataType: "text",
+                success: function(msg){
+                    //we need to check if the value is the same
+                    if (value==$(that).val()) {
+                    //Receiving the result of search here
+                    $( "#search-btn" ).trigger( "click" );
+                    }
+                }
+            });
+        }
+    });
+});
+</script>

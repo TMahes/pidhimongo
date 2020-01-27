@@ -1,0 +1,2 @@
+class RelationDetail < ApplicationRecord
+end

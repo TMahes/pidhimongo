@@ -1,0 +1,2 @@
+class RelationShipLevel < ApplicationRecord
+end

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+      <script src="/assets/lodash.min.js"></script>
+      <script src="/assets/contextMenu.css"></script>
+      <script src="/assets/contextMenu.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3-dtree@2.2.2/dist/dTree.min.js"></script>
+  <style type="text/css">
+  	body {
+	    font: 10px sans-serif;
+	}
+	.linage {
+	    fill: none;
+	    stroke: #000;
+	}
+	.marriage {
+	    fill: none;
+	    stroke: black;
+	}
+	.man {
+	    background-color: lightblue;
+			border-style: solid;
+			border-width: 1px;
+			box-sizing: border-box;
+	}
+	.woman {
+			background-color: pink;
+			border-style: solid;
+			border-width: 1px;
+			box-sizing: border-box;
+	}
+	.emphasis{
+			font-style: italic;
+	}
+	p {
+		padding:0;
+		margin:0;
+	}
+	svg {
+		border-style: solid;
+		border-width: 1px;
+	}
+ .iw-contextMenu {
+  -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  border: 1px solid #E6E6E6;
+  display: none;
+  z-index: 1000;
+}
+.iw-cm-menu {
+  background: #F4F4F4;
+  color: #333;
+  margin: 0px;
+  padding: 0px;
+}
+.iw-cm-menu li {
+  list-style: none;
+  padding: 3px;
+  padding-left: 30px;
+  padding-right: 20px;
+  border-bottom: 1px solid #CCC;
+  cursor: pointer;
+  position: relative;
+}
+.iw-mOverlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  left: 0px;
+  background: #FFF;
+  opacity: .5;
+}
+.iw-contextMenu li.iw-mDisable {
+  opacity: .3;
+}
+.iw-mSelected {
+  background-color: #003366;
+  color: #F2F2F2;
+}
+.iw-cm-arrow-right {
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 5px solid #333333;
+  position: absolute;
+  right: 3px;
+  top: 50%;
+  margin-top: -3px;
+}
+.iw-mSelected > .iw-cm-arrow-right {
+  border-left: 5px solid #FFF;
+}
+.iw-mIcon {
+  width: 20px;
+  height: 20px;
+  left: 0px;
+  top: 3px;
+  position: absolute;
+}
+  </style>
+</head>
+
+<body>
+	<div class="modal" id="response">
+<div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title"> </h5>
+      <button class="close" data-dismiss="modal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="list-group">
+        <div class="d-flex w-100 justify-content-between">
+          <div class="row">
+            <%= bootstrap_form_tag :url => "#", :remote => true, :html => {
+                                                  :id => 'regForm', :name => 'relationDetails,' } do |f| %>
+                    <div class="col-md-6">
+                      <%= f.text_field :query, class: 'form-control' %>
+                      <%= f.hidden_field :relation_id, value:""%>
+                      <%= f.hidden_field :relation_type, value:""%>
+
+                      <%= f.text_field :fname, label: "First Name",
+                              placeholder: 'FirstName...',
+                              class: 'form-control' %>
+                      <%= f.text_field :midname, label: "Middle Name",
+                              placeholder: 'MiddleName...',
+                              class: 'form-control' %>
+                    </div>
+
+                     <div class="col-md-6">
+                       <%= f.text_field :flastname, label: " Last Name",
+                               placeholder: 'LastName...',
+                               class: 'form-control' %>
+
+                               <%= f.text_field :otherNames, label: "Any other Names",
+                                       placeholder: 'Known by other Names...',
+                                       class: 'form-control' %>
+                     </div>
+
+                  <div class="col-md-6">
+                    <%= f.email_field :email,  label: "Email",
+                              placeholder: 'email' ,
+                              class: 'form-control' %>
+
+                    </div>
+
+                  <div class="col-md-6">
+                    <%= f.phone_field :mobile, label: "Mobile No",
+                            placeholder:'Mobile' ,
+                            class: 'form-control' %>
+                  </div>
+
+                  <div class="col-md-6">
+                    <%= f.date_field :dob, label: "Date of Birth",
+                            placeholder: 'Date of Birth...',
+                            class: 'form-control' %>
+
+                    <%= f.select :bloodgroup, [["O+", 1], ["O-", 2],["A+",3],["A-",4]], { class: "selectpicker" } %>
+                    </div>
+
+                    <div class="col-md-6">
+                      <%= f.select :living, [["Alive", 1], ["Dead", 2]], { class: "selectpicker", label:"Is Living" } %>
+                      <%= f.select :kid1order, [[1, 1], [2, 2],[3, 3],[4, 4],[5, 5],[6, 6],[7, 7],[8, 8]], { class: "selectpicker",label:"Child Order" } %>
+        </div>
+        <div id="div-extraname" class="col-md-6" style="display:none">
+                  <%= f.text_field :beforemarriageName, label: "Other Names Before Marriage",
+                          placeholder: 'Middle names before Marriage...',
+                          class: 'form-control' %>
+
+        </div>
+      </div>
+    </div>
+  </div>
+      <div class="modal-footer">
+        <%= f.submit "Add Details", class:"btn btn-success" %>
+        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+</div>
+	  <div id="graph"></div>
+	  <!-- <div class="testButton iw-mTrigger" id="testButton1" style="margin-bottom:50px">Click me</div> -->
+    <ul class='custom-menu' id="container-menu">
+  <li data-action="load">Load Schema</li>
+  <li data-action="clear">Clear container</li>
+</ul>
+ </body>
+ <script type="text/javascript">
+// fetch data on page load
+$(document).ready(function(){ 
+    $.ajax({
+                  type: 'GET',
+                  contentType: 'application/json; charset=utf-8',
+                  url: '/getTreeData',
+                  dataType: 'json',
+                  success: function(data){
+                  	//40var r = convert(data)
+                  	console.log(data);
+
+dTree.init(data, {
+  target: "#graph",
+  debug: true,
+  height: 800,
+  width: 1200,
+  callbacks: {
+    nodeClick: function(name, extra) {
+       $('.testButton').contextMenu(menu);
+    },
+    textRenderer: function(name, extra, textClass) {
+    	// THis callback is optinal but can be used to customize
+      // how the text is rendered without having to rewrite the entire node
+      // from screatch.
+      console.log(name)
+      var image='';
+      if(extra){
+        image=extra.image
+      console.log(extra.image)
+    }
+    else{
+      image ='/assets/ftree.png' 
+    }
+      if (extra && extra.nickname)
+      	name = name + " (" + extra.nickname + ")";
+    	return "<p align='center' class='" + textClass + "'>" + name + "</p><img  src=" + image + " width='42' height=42' />";
+    },
+    nodeRenderer: function(name, x, y, height, width, extra, id, nodeClass, textClass, textRenderer) {
+      // This callback is optional but can be used to customize the
+      // node element using HTML.
+      let node = '';
+      node += '<div ';
+      node += 'style="height:100%;width:100%;" ';
+      node += 'class="testButton ' + nodeClass + '" ';
+      node += 'id="node' + id + '">\n';
+      node += textRenderer(name, extra, textClass);
+      node += '</div>';
+
+      return node;
+  }
+  }
+});
+}
+    });
+    var menu = [{
+        name: 'Add Father',
+        title: 'create button',
+        fun: function () {
+            $('#response').modal('show');
+        }
+    }, {
+        name: 'Add Mother',
+        title: 'update button',
+        fun: function () {
+            alert('i am update button')
+        }
+    }, {
+        name: 'Add Brother',
+        title: 'delete button',
+        fun: function () {
+            alert('i am delete button')
+        }
+    }];
+ 
+//Calling context menu
+
+
+});
+  </script>

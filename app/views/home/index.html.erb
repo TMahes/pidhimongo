@@ -1,0 +1,58 @@
+<!-- Page content -->
+<div class="app">
+  <div class="container">
+    <div class="app__inner">
+      <div class="app__main">
+        <div class="text-container">
+          <% if user_signed_in? %>
+          <h3 class="app__main__title">Welcome <span id="user-name"><%= current_user.name %></span></h3>
+<h4>Let's Get you started ....</h4>
+          <div class="col-sm-offset-3 col-sm-3">
+          <ul class="list-group">
+            <li>Build your Profile.</li>
+            <li>Find the right Match or member of your circle</li>
+            <li>Connect with the Matches</li>
+            <li>Build the Family Tree</li>
+            <li>and there your go...Start Collaborating Within Your Circle !!!</li>
+          </ul>
+          <button type="button" class="btn btn-light">
+            <%= link_to 'Get Started..', profile_path %>
+          </button>
+            <!-- </div>
+            <div class="col-sm-offset-3 col-sm-3">
+            <h4>Recent members on pidhi..</h4>
+            <img src="assets/dummy_pic.jpeg" class="img-rounded" alt="Cinque Terre">
+            <P>
+              Name of the Member
+              </P>
+              </div>
+
+              <div class="col-sm-offset-3 col-sm-3">
+              <h4>Recent members on pidhi..</h4>
+              <img src="assets/dummy_pic.jpeg" class="img-rounded" alt="Cinque Terre">
+              <P>
+                Name of the Member
+                </P>
+                </div> -->
+          <% else # user not signed it %>
+          <h3 class="app__main__title">Welcome to xPidhi..</h3>
+          <p>Build your Family tree and Collaborate within your family Circle.</p>
+          <img src="assets/ftree.png" alt="Smiley face" height="500" width="500">
+          <% end # if user is signed it %>
+      </div>
+
+
+    </div>
+
+  </div>
+</div>
+<style media="screen">
+  .img-rounded {
+  display: inline-block;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+
+  object-fit: cover;
+}
+</style>
