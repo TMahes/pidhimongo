@@ -1,5 +1,35 @@
 <%@profile.each do |pro | %>
+  <div class="profile_container">
+    <div class="row">
+    <% @user_details = Profile.find_by(id:pro.id) %>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="well well-sm">
+                <div class="row">
+                    <div class="col-sm-6 col-md-4">
+                      <% if @user_details.avatar? %>
+      <%= image_tag @user_details.avatar.url(:thumb), :class => "img-rounded img-responsive" %>
+    <% end %>
+                       
+                    </div>
+                    <div class="col-sm-6 col-md-8">
+                        <h4>
+                        <%= @user_details.fname + " " +@user_details.lname %></h4>
+                        <small><cite title="San Francisco, USA">San Francisco, USA <i class="glyphicon glyphicon-map-marker">
+                        </i></cite></small>
+                        <p>
+                            <i class="glyphicon glyphicon-envelope"></i><%= @user_details.email %>
+                            <br />
+                            <!-- <i class="glyphicon glyphicon-globe"></i><a href="http://www.jquery2dotnet.com">www.jquery2dotnet.com</a>
+                            <br /> -->
+                            <i class="glyphicon glyphicon-gift"></i><%= @user_details.dob %></p>
+                        <!-- Split button -->
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <%= pro.id %>
-
+    </div>
+    
+</div>
     <% end %>

@@ -158,7 +158,7 @@ end
     when "son"
          collection.update_one({'name': fathername},{"$addToSet": {'marriages.0.children.0.marriages.0.children': {name:params[:fname],class: 'man',extra:{image:@cuser.avatar.url(:thumb)}}} })
     when "daughter"
-      collection.update_one({'name': fathername},{"$addToSet": { 'marriages.0.children.0.marriages.0.children': {name:params[:fname],class: 'woman',extra:{image:@cuser.avatar.url(:thumb)} } }})
+      collection.update_one({'name': fathername},{"$addToSet": { 'marriages.0.children.0.marriages.0.children': {name:params[:fname],class: 'woman',extra:{image:@cuser.avatar.url(:thumb),profile:@profile.id.to_s} } }})
     else  
          logger.debug "==========No input relation"
     end

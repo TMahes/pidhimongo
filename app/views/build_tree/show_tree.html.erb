@@ -105,7 +105,7 @@
 </head>
 
 <body>
-	<div class="modal" id="response">
+<div class="modal" id="response">
 <div class="modal-dialog">
   <div class="modal-content">
     <div class="modal-header">
@@ -116,12 +116,11 @@
       <div class="list-group">
         <div class="d-flex w-100 justify-content-between">
           <div class="row">
-            <%= bootstrap_form_tag :url => "#", :remote => true, :html => {
-                                                  :id => 'regForm', :name => 'relationDetails,' } do |f| %>
+            <%= bootstrap_form_tag :url => "/build_profile", :remote => true, :html => {
+                                                  :id => 'regForm', :name => 'relationDetails,', :'data-ajax' => false, :multipart => true } do |f| %>
                     <div class="col-md-6">
-                      <%= f.text_field :query, class: 'form-control' %>
                       <%= f.hidden_field :relation_id, value:""%>
-                      <%= f.hidden_field :relation_type, value:""%>
+                      <%= f.hidden_field :relation_type %>
 
                       <%= f.text_field :fname, label: "First Name",
                               placeholder: 'FirstName...',
@@ -147,7 +146,10 @@
                               class: 'form-control' %>
 
                     </div>
+                        <div class="col-md-6">
+                  <%= f.file_field "avatar" %>
 
+        </div>
                   <div class="col-md-6">
                     <%= f.phone_field :mobile, label: "Mobile No",
                             placeholder:'Mobile' ,
@@ -172,6 +174,8 @@
                           class: 'form-control' %>
 
         </div>
+         
+       
       </div>
     </div>
   </div>
@@ -183,7 +187,7 @@
     </div>
   </div>
 </div>
-</div>
+</div> 
 	  <div id="graph"></div>
 	  <!-- <div class="testButton iw-mTrigger" id="testButton1" style="margin-bottom:50px">Click me</div> -->
     <ul class='custom-menu' id="container-menu">
@@ -218,16 +222,20 @@ dTree.init(data, {
       // from screatch.
       console.log(name)
       var image='';
+      var id='';
       if(extra){
         image=extra.image
-      console.log(extra.image)
+      //console.log(extra.image)
+     id=extra.profile
+
+      console.log(id)
     }
     else{
       image ='/assets/ftree.png' 
     }
       if (extra && extra.nickname)
       	name = name + " (" + extra.nickname + ")";
-    	return "<p align='center' class='" + textClass + "'>" + name + "</p><img  src=" + image + " width='42' height=42' />";
+    	return "<p align='center' class='" + textClass + "'>" + name + "</p><a href='/view_profile?id="+id+"'><img  src=" + image + " width='42' height=42' /></a>";
     },
     nodeRenderer: function(name, x, y, height, width, extra, id, nodeClass, textClass, textRenderer) {
       // This callback is optional but can be used to customize the
@@ -248,26 +256,63 @@ dTree.init(data, {
     });
     var menu = [{
         name: 'Add Father',
-        title: 'create button',
+        title: 'Add Father',
         fun: function () {
+           $(".modal-body #relation_type").val('father');
             $('#response').modal('show');
         }
     }, {
         name: 'Add Mother',
-        title: 'update button',
+        title: 'Add Mother',
         fun: function () {
-            alert('i am update button')
+           $(".modal-body #relation_type").val('mother');
+            $('#response').modal('show');
         }
     }, {
         name: 'Add Brother',
-        title: 'delete button',
+        title: 'Add Brother',
         fun: function () {
-            alert('i am delete button')
+           $(".modal-body #relation_type").val('brother');
+             $('#response').modal('show');
+        }
+    }, {
+        name: 'Add Sister',
+        title: 'Add Sister',
+        fun: function () {
+           $(".modal-body #relation_type").val('sister');
+             $('#response').modal('show');
+        }
+    },{
+        name: 'Add Spouse',
+        title: 'Add Spouse',
+        fun: function () {
+           $(".modal-body #relation_type").val('spouse');
+             $('#response').modal('show');
+        }
+    },{
+        name: 'Add Son',
+        title: 'Add Son',
+        fun: function () {
+           $(".modal-body #relation_type").val('son');
+             $('#response').modal('show');
+        }
+    },{
+        name: 'Add Daughter',
+        title: 'Add Daughter',
+        fun: function () {
+           $(".modal-body #relation_type").val('daughter');
+             $('#response').modal('show');
         }
     }];
  
 //Calling context menu
 
 
+});
+$(document).on("click", ".dropdown-item", function () {
+     var query = $(this).data('query');
+    var relation = $(this).data('relation');
+     $(".modal-body #query").val( query );
+    $(".modal-body #relation_type").val( relation );
 });
   </script>
