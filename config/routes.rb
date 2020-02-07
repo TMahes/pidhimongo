@@ -6,6 +6,13 @@ Rails.application.routes.draw do
 
   root to: 'home#index'
 
+  resources :conversations, only: [:create] do
+    member do
+      post :close
+    end
+    resources :messages, only: [:create]
+  end
+
   devise_scope :user do
     get 'login', to: 'devise/sessions#new'
   end
@@ -17,7 +24,7 @@ Rails.application.routes.draw do
   # devise_scope :user do
   #   get 'profile', to: 'devise/registrations#profile'
   # end
-
+  post 'close', to: 'conversations#close'
   get 'profile', to: 'profile#profile'
   post 'profile', to: 'profile#create'
 
