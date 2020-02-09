@@ -118,10 +118,18 @@ end
   end
 
   def addtoProfiles
+        @user = User.new
+    @user.name = params[:fname]
+    @user.email = params[:email]
+    @user.mobile = params[:mobile]
+    @user.password = "password123"
+    @user.password_confirmation = "password123"
+    @user.save
     @profile = Profile.new
     db = Mongoid::Clients.default
     collection = db[:pidhi_tree]
     @profile.userid = current_user.id
+    @profile.regid = @user.id
     @profile.fname = params[:fname]
     @profile.lname = params[:flastname]
     #@profile.middlename = params[:midname]
@@ -135,9 +143,8 @@ end
     #@profile.childOrder = params[:kid1order]
     @profile.relation_id = params[:relation_id]
     @profile.relation_type = params[:relation_type]
-
-    
     @profile.save
+
      relation = params[:relation_type]
       @user_details = Profile.find_by(userid:current_user.id.to_s)
       @cuser = Profile.find_by(fname:params[:fname])

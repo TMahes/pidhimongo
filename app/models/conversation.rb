@@ -20,8 +20,6 @@ class Conversation
     if conversation.blank?
     	conversation = find_by(sender_id: recipient_id, recipient_id: sender_id)
     end
-    logger.debug "senderrrrrrrr#{sender_id}"
-    logger.debug "senderrrrrrrr#{recipient_id}"
     return conversation if conversation.present?
 
     create(sender_id: sender_id, recipient_id: recipient_id)

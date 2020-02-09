@@ -1,3 +1,10 @@
+<style type="text/css">
+  .chat_image{
+  height: 36px;
+  width: 36px;
+  margin-right: 15px;
+}
+</style>
 <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 <div class="container" id="container">
 <h4>Start Building your Family Tree...</h4>
@@ -35,49 +42,7 @@
                         <!-- Split button -->
                       
                         <button type="button" class="btn btn-Success">View My Profile</button>
-                        
-                    </div>
-                </div>
-            </div>
-        </div>
-        <a href="/show_tree">View Tree </a>
-        <button id="btn-invite" type="button" class="btn btn-success" data-toggle="modal" data-target="#invite_mem">
-        View My Family Tree
-      </button>
-
-    </div>
-    
-</div>
-
-
-<!-- All profile grids -->
-<% @profiles = Profile.all.where(:userid => current_user.id) %>
-<% @profiles.each do | profile| %>
-<% if profile.email != current_user.email %>
-<div class="profile_container">
-        <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="well well-sm">
-                <div class="row">
-                <div class="relation_name"><%= profile.relation_type %>  </div>
-                    <div class="col-sm-6 col-md-4">
-                          <% if profile.avatar? %>
-      <%= image_tag profile.avatar.url(:thumb), :class => "img-rounded img-responsive" %>
-    <% end %>
-                    </div>
-                    <div class="col-sm-6 col-md-8">
-                        <h4>
-                        <%= profile.fname  %> </h4>
-                        <small><cite title="San Francisco, USA">San Francisco, USA <i class="glyphicon glyphicon-map-marker">
-                        </i></cite></small>
-                        <p>
-                            <i class="glyphicon glyphicon-envelope"></i><%= profile.email %>
-                            <br />
-                           <!--  <i class="glyphicon glyphicon-globe"></i><a href="http://www.jquery2dotnet.com">www.jquery2dotnet.com</a>
-                            <br /> -->
-                            <i class="glyphicon glyphicon-gift"></i><%= profile.dob %></p>
-                        <!-- Split button -->
-                        <%= link_to "View Profile",view_profile_path(:id=>profile.id),:class => "btn btn-info" %>
-          <div class="add_relations">
+                                  <div class="add_relations">
           <div class="dropdown">
           <button  id="btn-relation" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
             Add a Relation
@@ -95,20 +60,45 @@
           </div>
           </div>
           </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <a href="/show_tree"  class="btn btn-success">View Tree </a>
+          <button id="btn-invite" type="button" class="btn btn-warning" data-toggle="modal" data-target="#invite_mem">
+            Invite a Member
+          </button>
+    </div>
+    
+</div>
 
 
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-primary">
-                                Social</button>
-                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                                <span class="caret"></span><span class="sr-only">Social</span>
-                            </button>
-                            <ul class="dropdown-menu" role="menu">
-                                <li><a href="#">Twitter</a></li>
-                                <li><a href="https://plus.google.com/+Jquery2dotnet/posts">Google +</a></li>
-                                <li><a href="https://www.facebook.com/jquery2dotnet">Facebook</a></li>
-                            </ul>
-                        </div>
+<!-- All profile grids -->
+<% @profiles = Profile.all.where(:userid => current_user.id) %>
+<% @profiles.each do | profile| %>
+<% if profile.email != current_user.email %>
+<div class="card text-white bg-info mb-3">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="well well-sm">
+                <div class="row">
+                <div class="relation_name"><%= profile.relation_type %>  </div>
+                    <div class="col-sm-6 col-md-4">
+                          <% if profile.avatar? %>
+      <%= image_tag profile.avatar.url(:thumb), :class => "img-rounded img-responsive" %>
+    <% end %>
+                    </div>
+                    <div class="col-sm-6 col-md-8">
+                        <h4>
+                        <%= profile.fname  %> </h4>
+                        <small><cite title="San Francisco, USA">San Francisco, USA <i class="glyphicon glyphicon-map-marker">
+                        </i></cite></small>
+                        <p>
+                            <i class="glyphicon glyphicon-envelope"></i><%= profile.email %>
+                            <br />
+                            <i class="glyphicon glyphicon-gift"></i><%= profile.dob %></p>
+                        <!-- Split button -->
+                        <%= link_to "View Profile",view_profile_path(:id=>profile.id),:class => "btn btn-info" %>
+                          <%= link_to image_tag('/assets/chat.png',:class => "chat_image"), conversations_path(user_id: profile.regid), remote: true, method: :post %>
                     </div>
                 </div>
             </div>
@@ -125,30 +115,12 @@
       </div>
 
       <div class="col-sm-3">
-        <div class="add_relations">
-          <div class="dropdown">
-          <button  id="btn-relation" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-            Add a Relation
-          </button>
-          <div class="dropdown-menu">
-            <ul id="div_relation">
-              <li value=1><a href="" class="dropdown-item" data-toggle="modal" data-relation='father' data-target="#response" >Father</a></li>
-              <li value=2><a href="" class="dropdown-item" data-toggle="modal" data-relation='mother' data-query="marriages" data-target="#response">Mother</a></li>
-              <li value=5><a href="" class="dropdown-item" data-toggle="modal" data-relation='brother' data-query="marriages.0.children" data-target="#response">Brother</a></li>
-              <li value=6><a href="" class="dropdown-item" data-toggle="modal" data-relation='sister' data-query="marriages.0.children" data-target="#response">Sister</a></li>
-              <li value=3><a href="" class="dropdown-item" data-toggle="modal" data-relation='son' data-target="#response">Son</a></li>
-              <li value=4><a href="" class="dropdown-item" data-toggle="modal" data-relation='daughter' data-target="#response">Daughter</a></li>
-              <li value=9><a href="" class="dropdown-item" data-toggle="modal" data-relation='spouse' data-query="marriages.0.children.0.marriages" data-target="#response">Spouse</a></li>
-              
-            </ul>
-          </div>
 
-          <button id="btn-invite" type="button" class="btn btn-warning" data-toggle="modal" data-target="#invite_mem">
-            Invite a Member
-          </button>
-        </div>
-
-        </div>
+    <ul id="conversations-list">
+      <% @conversations.each do |conversation| %>
+        <%= render 'conversations/conversation', conversation: conversation, user: current_user %>
+      <% end %>
+    </ul>
         </div>
 </div>
 

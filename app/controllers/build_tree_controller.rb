@@ -12,6 +12,10 @@ skip_before_action :verify_authenticity_token
 end
   end
 =end
+    session[:conversations] ||= []
+    @users = User.all
+    @conversations = Conversation.includes(:recipient, :messages)
+                                 .find(session[:conversations])
 end
 
 

@@ -1,82 +1,141 @@
-<!-- Page content -->
-<div class="app">
-  <div class="container">
-    <div class="app__inner">
-      <div class="app__main">
-        <div class="text-container">
-          <% if user_signed_in? %>
-          <h3 class="app__main__title">Welcome <span id="user-name"><%= current_user.name %></span></h3>
-<h4>Let's Get you started ....</h4>
-          <div class="col-sm-offset-3 col-sm-3">
-          <ul class="list-group">
-            <li>Build your Profile.</li>
-            <li>Find the right Match or member of your circle</li>
-            <li>Connect with the Matches</li>
-            <li>Build the Family Tree</li>
-            <li>and there your go...Start Collaborating Within Your Circle !!!</li>
-          </ul>
-          <button type="button" class="btn btn-light">
-            <%= link_to 'Get Started..', profile_path %>
-          </button>
-            <!-- </div>
-            <div class="col-sm-offset-3 col-sm-3">
-            <h4>Recent members on pidhi..</h4>
-            <img src="assets/dummy_pic.jpeg" class="img-rounded" alt="Cinque Terre">
-            <P>
-              Name of the Member
-              </P>
-              </div>
 
-              <div class="col-sm-offset-3 col-sm-3">
-              <h4>Recent members on pidhi..</h4>
-              <img src="assets/dummy_pic.jpeg" class="img-rounded" alt="Cinque Terre">
-              <P>
-                Name of the Member
-                </P>
-                </div> -->
-          <% else # user not signed it %>
-          <h3 class="app__main__title">Welcome to xPidhi..</h3>
-          <p>Build your Family tree and Collaborate within your family Circle.</p>
-          <img src="assets/ftree.png" alt="Smiley face" height="500" width="500">
-          <% end # if user is signed it %>
-      </div>
-
-
-    </div>
-
-  </div>
-</div>
-<div class="row">
-  <div class="col-md-9">
-    <ul id="conversations-list">
-      <% @conversations.each do |conversation| %>
-        <%= render 'conversations/conversation', conversation: conversation, user: current_user %>
-      <% end %>
-    </ul>
-  </div>
-
-  <div class="col-md-3">
-    <div class="panel panel-primary">
-      <div class="panel-heading">
-        <h3 class="panel-title">User list</h3>
-      </div>
-      <div class="panel-body">
-        <ul>
-          <% @users.each do |user| %>
-           <li><%= link_to user.email, conversations_path(user_id: user), remote: true, method: :post %></li>
-          <% end %>
-        </ul>
-      </div>
-    </div>
-  </div>
-</div>
 <style media="screen">
-  .img-rounded {
-  display: inline-block;
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
+.relation_name {
+  background: #d68a08;
+    height: 2rem;
+    top: 0rem;
+    right: 15px;
+    width: 8rem;
+    text-align: center;
+    line-height: 2rem;
+    font-size: 1rem;
+    color: white;
+    border: 1px solid #d68a08; 
+    position: absolute;
+}
 
-  object-fit: cover;
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  transition: 0.3s;
+  width: 100%;
+}
+
+.avatar {
+  vertical-align: middle;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+
+
+  .dropdown-menu {
+      background: #fff !important;
+      border: none;
+}
+#btn-relation,
+#btn-invite{
+          display: inline-block;
+          vertical-align: top;
+          margin:10;
+      }
+</style>
+<style type="text/css">
+  #search-btn{
+  display: none;
+ 
+}
+#search{
+   margin:  70px 20px 25px 280px;
+   width: 50%;
+}
+.chat_image{
+  height: 36px;
+  width: 36px;
+  margin-right: 15px;
 }
 </style>
+<% if current_user %>
+<div class="searchprofile">
+  <%= form_tag '#', method: :get do %>
+  <%= text_field_tag 'search', params[:search], placeholder: "Search Profile" , :class => "form-control"  %>   
+  <%= submit_tag 'Search!',id: "search-btn" %>
+<% end %>
+<% @profiles.each do | profile| %>
+<% if profile.email != current_user.email %>
+<div class="profile_container">
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="well well-sm">
+                <div class="row">
+               
+                    <div class="col-sm-6 col-md-4">
+                          <% if profile.avatar? %>
+                             <%= image_tag profile.avatar.url(:thumb), :class => "img-rounded img-responsive" %>
+                           <% end %>
+                    </div>
+                    <div class="col-sm-6 col-md-8">
+                        <h4>
+                        <%= profile.fname  %> </h4>
+                        <small><cite title="San Francisco, USA">San Francisco, USA <i class="glyphicon glyphicon-map-marker">
+                        </i></cite></small>
+                        <p>
+                            <i class="glyphicon glyphicon-envelope"></i><%= profile.email %>
+                            <br />
+                            <i class="glyphicon glyphicon-gift"></i><%= profile.dob %></p>
+                        <!-- Split button -->
+                        <%= link_to "View Profile",view_profile_path(:id=>profile.id),:class => "btn btn-info" %>
+                        
+                        <%= link_to image_tag('/assets/chat.png',:class => "chat_image"), conversations_path(user_id: profile.regid), remote: true, method: :post %>
+                       
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+
+</div>
+<% end %>
+<% end %>
+</div>
+<div class="clearfix"> </div>
+
+<% else %>
+ <h3 class="app__main__title">Welcome to xPidhi..</h3>
+          <p>Build your Family tree and Collaborate within your family Circle.</p>
+          <img src="assets/ftree.png" alt="Smiley face" height="500" width="500">
+          <% end %>
+<script type="text/javascript">
+
+var searchRequest = null;
+
+$(function () {
+    var minlength = 3;
+
+    $("#search").keyup(function () {
+        var that = this,
+        value = $(this).val();
+
+        if (value.length >= minlength ) {
+           // if (searchRequest != null) 
+                //searchRequest.abort();
+            searchRequest = $.ajax({
+                type: "GET",
+                url: "/search",
+                data: {
+                    'search' : value
+                },
+                dataType: "text",
+                success: function(msg){
+                    //we need to check if the value is the same
+                    if (value==$(that).val()) {
+                    //Receiving the result of search here
+                    $( "#search-btn" ).trigger( "click" );
+                    }
+                }
+            });
+        }
+    });
+});
+</script>

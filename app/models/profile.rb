@@ -3,6 +3,7 @@ class Profile
 	include Mongoid::Paperclip
     #belongs_to :user, :foreign_key => :user
     field :userid
+    field :regid
     field :fname
     field :lname
     field :familyname
