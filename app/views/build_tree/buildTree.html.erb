@@ -48,15 +48,13 @@
             Add a Relation
           </button>
           <div class="dropdown-menu">
-            <ul id="div_relation">
-              <li value=1><a href="" class="dropdown-item" data-toggle="modal" data-query="" data-target="#response" >Father</a></li>
-              <li value=2><a href="" class="dropdown-item" data-toggle="modal"  data-target="#response">Mother</a></li>
-              <li value=5><a href="" class="dropdown-item" data-toggle="modal" data-target="#response">Brother</a></li>
-              <li value=6><a href="" class="dropdown-item" data-toggle="modal" data-target="#response">Sister</a></li>
-              <li value=3><a href="" class="dropdown-item" data-toggle="modal" data-target="#response">Son</a></li>
-              <li value=4><a href="" class="dropdown-item" data-toggle="modal" data-target="#response">Daughter</a></li>
-              <li value=9><a href="" class="dropdown-item" data-toggle="modal" data-target="#response">Spouse</a></li>
-            </ul>
+              <li value=1><a href="" class="dropdown-item" data-toggle="modal" data-relation='father' data-target="#response" >Father</a></li>
+              <li value=2><a href="" class="dropdown-item" data-toggle="modal" data-relation='mother' data-query="marriages" data-target="#response">Mother</a></li>
+              <li value=5><a href="" class="dropdown-item" data-toggle="modal" data-relation='brother' data-query="marriages.0.children" data-target="#response">Brother</a></li>
+              <li value=6><a href="" class="dropdown-item" data-toggle="modal" data-relation='sister' data-query="marriages.0.children" data-target="#response">Sister</a></li>
+              <li value=3><a href="" class="dropdown-item" data-toggle="modal" data-relation='son' data-target="#response">Son</a></li>
+              <li value=4><a href="" class="dropdown-item" data-toggle="modal" data-relation='daughter' data-target="#response">Daughter</a></li>
+              <li value=9><a href="" class="dropdown-item" data-toggle="modal" data-relation='spouse' data-query="marriages.0.children.0.marriages" data-target="#response">Spouse</a></li>
           </div>
           </div>
           </div>
@@ -202,7 +200,7 @@
     </div>
   </div>
       <div class="modal-footer">
-        <%= f.submit "Add Details", class:"btn btn-success" %>
+        <%= f.submit "Add Details", class:"btn btn-success", id: "add_details" %>
         <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
       </div>
       <% end %>
@@ -327,12 +325,16 @@ $(function(){
 
 
 $(document).on("click", ".dropdown-item", function () {
+
      var query = $(this).data('query');
     var relation = $(this).data('relation');
      $(".modal-body #query").val( query );
     $(".modal-body #relation_type").val( relation );
 });
 
-
+//$(document).on("click", "#add_details", function () {
+ //$('#response').modal('hide');
+ //location.reload();
+//});
 
 </script>

@@ -151,7 +151,7 @@ end
        fathername = @user_details.father_name
     case relation
     when "father"
-      @profile.father_name = params[:father_name]
+      Profile.find_by(userid:current_user.id.to_s).set(father_name: params[:fname])
        collection.insert_one({'name':params[:fname],class:"man",extra:{image:@cuser.avatar.url(:thumb)}})
     when "mother"
        collection.update_one({'name': fathername},{"$addToSet": {'marriages': {spouse:{name:params[:fname],class: 'woman',extra:{image:@cuser.avatar.url(:thumb)}}} }})

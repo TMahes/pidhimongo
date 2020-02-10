@@ -19,6 +19,10 @@ class RegistrationsController < Devise::RegistrationsController
                                   :current_password)
   end
 
+  protected
 
+  def after_sign_up_path_for(resource)
+    '/profile' # Or :prefix_to_your_route
+  end
   
 end
