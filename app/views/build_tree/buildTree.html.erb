@@ -62,7 +62,7 @@
                 </div>
             </div>
         </div>
-        <a href="/show_tree"  class="btn btn-success">View Tree </a>
+        <a href="/family_tree"  class="btn btn-success">View Tree </a>
           <button id="btn-invite" type="button" class="btn btn-warning" data-toggle="modal" data-target="#invite_mem">
             Invite a Member
           </button>
@@ -136,7 +136,7 @@
       <div class="list-group">
         <div class="d-flex w-100 justify-content-between">
           <div class="row">
-            <%= bootstrap_form_tag :url => "/build_profile", :remote => true, :html => {
+            <%= bootstrap_form_tag :url => "/build_family", :remote => true, :html => {
                                                   :id => 'regForm', :name => 'relationDetails,', :'data-ajax' => false, :multipart => true } do |f| %>
                     <div class="col-md-6">
                       <%= f.hidden_field :relation_id, value:""%>

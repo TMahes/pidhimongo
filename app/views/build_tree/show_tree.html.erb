@@ -5,7 +5,7 @@
       <script src="/assets/lodash.min.js"></script>
       <script src="/assets/contextMenu.css"></script>
       <script src="/assets/contextMenu.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/d3-dtree@2.2.2/dist/dTree.min.js"></script>
+  
   <style type="text/css">
   	body {
 	    font: 10px sans-serif;
@@ -121,6 +121,8 @@
                     <div class="col-md-6">
                       <%= f.hidden_field :relation_id, value:""%>
                       <%= f.hidden_field :relation_type %>
+                       <%= f.hidden_field :parent_name, value:"" %>
+                         <%= f.hidden_field :depth, value:"" %>
 
                       <%= f.text_field :fname, label: "First Name",
                               placeholder: 'FirstName...',
@@ -205,7 +207,7 @@ $(document).ready(function(){
                   dataType: 'json',
                   success: function(data){
                   	//40var r = convert(data)
-                  	console.log(data);
+                  //	console.log(data);
 
 dTree.init(data, {
   target: "#graph",
@@ -213,14 +215,21 @@ dTree.init(data, {
   height: 800,
   width: 1200,
   callbacks: {
-    nodeClick: function(name, extra) {
+    nodeClick: function(name, extra, parent,depth) {
        $('.testButton').contextMenu(menu);
+       console.log(parent);
+       $('.modal-body #parent_name').val(name);
+       $('.modal-body #depth').val(depth);
     },
+/*       nodeSize: function(nodes, width, textRenderer){
+      console.log(width)
+      console.log(nodes[0].height)
+    },*/
     textRenderer: function(name, extra, textClass) {
     	// THis callback is optinal but can be used to customize
       // how the text is rendered without having to rewrite the entire node
       // from screatch.
-      console.log(name)
+
       var image='';
       var id='';
       if(extra){
@@ -228,7 +237,7 @@ dTree.init(data, {
       //console.log(extra.image)
      id=extra.profile
 
-      console.log(id)
+     // console.log(id)
     }
     else{
       image ='/assets/ftree.png' 
@@ -237,13 +246,16 @@ dTree.init(data, {
       	name = name + " (" + extra.nickname + ")";
     	return "<p align='center' class='" + textClass + "'>" + name + "</p><a href='/view_profile?id="+id+"'><img  src=" + image + " width='42' height=42' /></a>";
     },
-    nodeRenderer: function(name, x, y, height, width, extra, id, nodeClass, textClass, textRenderer) {
+    nodeRenderer: function(name, x, y, height, width, extra, id, nodeClass, textClass, textRenderer,depth) {
       // This callback is optional but can be used to customize the
       // node element using HTML.
+      
+      console.log(depth)
       let node = '';
       node += '<div ';
       node += 'style="height:100%;width:100%;" ';
       node += 'class="testButton ' + nodeClass + '" ';
+      node += 'data-depth="' + depth + '"';
       node += 'id="node' + id + '">\n';
       node += textRenderer(name, extra, textClass);
       node += '</div>';
@@ -315,4 +327,5 @@ $(document).on("click", ".dropdown-item", function () {
      $(".modal-body #query").val( query );
     $(".modal-body #relation_type").val( relation );
 });
+
   </script>

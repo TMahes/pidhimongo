@@ -30,12 +30,15 @@ Rails.application.routes.draw do
 
   get 'confirm', to: 'profile#confirm'
   post 'confirm', to: 'profile#update_details'
-
+  
   get 'build_tree', to: 'build_tree#buildTree'
 
   post 'build_profile', to: 'profile#addtoProfiles'
+  post 'build_family', to: 'family#addtoFamily'
+  get 'family_tree', to: 'family#showTree'
   get 'show_tree', to: 'build_tree#showTree'
   get 'getTreeData', to: 'profile#getTreeData'
+  get 'getFamilyData', to: 'family#getFamilyData'
   get 'view_profile', to: 'build_tree#viewProfile'
   get 'search_path', to: 'profile#searchProfile' , :defaults => { :format => 'text/html' }
    get 'search', to: 'profile#search'

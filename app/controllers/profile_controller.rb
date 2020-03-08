@@ -79,10 +79,29 @@ end
     # @profile.sib2gender = params[:sib2gender]
     # @profile.sib2order = params[:sib2order]
     # @profile.sib2married = params[:sib2married]
-
-
     @profile.save
 
+    a = (100..999).to_a.shuffle 
+    b = (1000..1999).to_a.shuffle 
+    tag_value = b.pop
+    @family = Family.new
+    db = Mongoid::Clients.default
+    collectionfamily = db[:family]
+    @family._id = a.pop
+    @family.familyid = a.pop
+    @family.fname = params[:fname]
+    @family.lname = params[:flastname]
+    @family.email = params[:email]
+    @family.mobile = params[:mobile]
+    @family.dob = params[:dob]
+    @family.gender = params[:gender]
+    @family.avatar = params[:avatar]
+    @family.save
+    @cuser = Family.find_by(_id:@family.id.to_i)
+    Family.where(id: @family.id).add_to_set("tags" => tag_value.to_s)
+    db[:tags].insert_one('_id':tag_value,'template': 'familyGroupTag')
+     db[:families].update_one({'_id': @family.id.to_i},{'$set': {'img': @cuser.avatar.url(:thumb)}},{multi: false})
+    db[:users].update_one({'_id': current_user.id},{'$set': {'familyid': @family.familyid.to_s }},{multi: false})
     redirect_to '/confirm'
 
 
@@ -102,7 +121,8 @@ end
 
 
   def update_details
-    redirect_to '/build_tree'
+
+    redirect_to '/family_tree'
   end
 
   def search
@@ -118,13 +138,6 @@ end
   end
 
   def addtoProfiles
-        @user = User.new
-    @user.name = params[:fname]
-    @user.email = params[:email]
-    @user.mobile = params[:mobile]
-    @user.password = "password123"
-    @user.password_confirmation = "password123"
-    @user.save
     @profile = Profile.new
     db = Mongoid::Clients.default
     collection = db[:pidhi_tree]
@@ -132,67 +145,36 @@ end
     @profile.regid = @user.id
     @profile.fname = params[:fname]
     @profile.lname = params[:flastname]
-    #@profile.middlename = params[:midname]
-    #@profile.familyname = current_user.familyname
-   # @profile.otherNames = params[:otherNames]
     @profile.email = params[:email]
     @profile.mobile = params[:mobile]
     @profile.dob = params[:dob]
     @profile.avatar = params[:avatar]
-    #@profile.isAlive = params[:living]
-    #@profile.childOrder = params[:kid1order]
     @profile.relation_id = params[:relation_id]
     @profile.relation_type = params[:relation_type]
     @profile.save
 
-     relation = params[:relation_type]
-      @user_details = Profile.find_by(userid:current_user.id.to_s)
-      @cuser = Profile.find_by(fname:params[:fname])
-       fathername = @user_details.father_name
-    case relation
-    when "father"
-      Profile.find_by(userid:current_user.id.to_s).set(father_name: params[:fname])
-       collection.insert_one({'name':params[:fname],class:"man",extra:{image:@cuser.avatar.url(:thumb)}})
-    when "mother"
-       collection.update_one({'name': fathername},{"$addToSet": {'marriages': {spouse:{name:params[:fname],class: 'woman',extra:{image:@cuser.avatar.url(:thumb)}}} }})
-       collection.update_one({'name': fathername},{"$addToSet": {'marriages.0.children':{ name:  @user_details.fname,class: 'man',extra:{image:@user_details.avatar.url(:thumb)}}}})
-    when "brother"
-         collection.update_one({'name': fathername},{"$addToSet": {'marriages.0.children':{ name:params[:fname],class: 'man',extra:{image:@cuser.avatar.url(:thumb)}}}})
-    when "sister"
-      collection.update_one({'name': fathername},{"$addToSet":  {'marriages.0.children':{name:params[:fname],class: 'woman',extra:{image:@cuser.avatar.url(:thumb)}}} })
-    when "spouse"
-        collection.update_one({'name': fathername},{"$addToSet": {'marriages.0.children.0.marriages': {spouse:{name:params[:fname],class: 'woman',extra:{image:@cuser.avatar.url(:thumb)}} }}})
-    when "son"
-         collection.update_one({'name': fathername},{"$addToSet": {'marriages.0.children.0.marriages.0.children': {name:params[:fname],class: 'man',extra:{image:@cuser.avatar.url(:thumb)}}} })
-    when "daughter"
-      collection.update_one({'name': fathername},{"$addToSet": { 'marriages.0.children.0.marriages.0.children': {name:params[:fname],class: 'woman',extra:{image:@cuser.avatar.url(:thumb),profile:@profile.id.to_s} } }})
-    else  
-         logger.debug "==========No input relation"
-    end
-    logger.debug "========================Saving data"
-    if @profile.save 
-      @connection = Connection.new
-      @connection.user_id = current_user.id
-      @connection.relation_id = params[:relation_id]
-      @connection.profile_id = @profile.id
-      @connection.save
-    end
-    redirect_to '/build_tree'
+    respond_to do |format|
+  format.js {render inline: "location.reload();" }
+end
   end
 
     def getTreeData
       db = Mongoid::Clients.default
       collection = db[:pidhi_tree]
-      #doc = collection.find(_id: '5e10698070233f3ef84a8c9b').first
        @user_details = Profile.find_by(userid:current_user.id.to_s)
        fathername = @user_details.father_name
       doc = collection.find('name' => fathername)
       #mother = '{marriages: {spouse:{name: "ddd",class: "woman"}}'
       #relation = 'marriages.0.children' 
       #brother = {name:"kkk",class:"man"}
-    #collection.update_one({'name': 'Selvaraj'},{"$addToSet": {'marriages': {spouse:{name: 'ddd',class: 'woman'} }}})
+    #collection.update_one({'name': 'Selvaraj'},{"$addToSet": {'marriages': {spouse:{name: 'dd4d',class: 'man'} }}})
+    #collection.update_one({'name': 'selvaraj'},{"$addToSet": {'marriages.0.children.2.marriages': {spouse:{name:'husband',class: 'man' }}}})
+    #collection.update_one({'name': fathername},{"$addToSet": {'marriages.0.children.0.marriages.0.children': {name:params[:fname],class: 'man',extra:{image:@cuser.avatar.url(:thumb)}}} })
     #collection.insert_one({'name':'Selvaraj',class:"man"})
-     logger.debug "data=================#{doc.as_json}"
+   # jso = doc.as_json
+    #logger.debug "data=======count==========#{jso.hash['marriages'].count}"
+    
+     logger.debug "data=================#{2.times.collect { 'hi' }.join('.')}"
     respond_to do |format|
       format.html 
       format.json {render json: doc}

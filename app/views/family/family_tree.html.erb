@@ -1,0 +1,261 @@
+    <link href="https://fonts.googleapis.com/css?family=Gochi+Hand" rel="stylesheet">
+    <style type="text/css">
+    #tree {
+    width: 100%;
+    height: 100%;
+}
+g.woman rect{
+    fill: #FFC0CB;
+}
+
+</style>
+<div class="modal" id="response">
+<div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title"> </h5>
+      <button class="close" data-dismiss="modal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="list-group">
+        <div class="d-flex w-100 justify-content-between">
+          <div class="row">
+            <%= bootstrap_form_tag :url => "/build_family", :remote => true, :html => {
+                                                  :id => 'regForm', :name => 'relationDetails,', :'data-ajax' => false, :multipart => true } do |f| %>
+                    <div class="col-md-6">
+                         <%= f.hidden_field :id, value:"" %>
+                         <%= f.hidden_field :familyid, value:"" %>
+                         <%= f.hidden_field :pid, value:"" %>
+                         <%= f.hidden_field :gender, value:"" %>
+                         <%= f.hidden_field :relationtype, value:"" %>
+                         <%= f.hidden_field :familyid, value:"" %>
+                         
+
+                      <%= f.text_field :fname, label: "First Name",
+                              placeholder: 'FirstName...',
+                              class: 'form-control' %>
+                      <%= f.text_field :midname, label: "Middle Name",
+                              placeholder: 'MiddleName...',
+                              class: 'form-control' %>
+                    </div>
+
+                     <div class="col-md-6">
+                       <%= f.text_field :flastname, label: " Last Name",
+                               placeholder: 'LastName...',
+                               class: 'form-control' %>
+
+                               <%= f.text_field :otherNames, label: "Any other Names",
+                                       placeholder: 'Known by other Names...',
+                                       class: 'form-control' %>
+                     </div>
+
+                  <div class="col-md-6">
+                    <%= f.email_field :email,  label: "Email",
+                              placeholder: 'email' ,
+                              class: 'form-control' %>
+
+                    </div>
+                        <div class="col-md-6">
+                  <%= f.file_field "avatar" %>
+
+        </div>
+                  <div class="col-md-6">
+                    <%= f.phone_field :mobile, label: "Mobile No",
+                            placeholder:'Mobile' ,
+                            class: 'form-control' %>
+                  </div>
+
+                  <div class="col-md-6">
+                    <%= f.date_field :dob, label: "Date of Birth",
+                            placeholder: 'Date of Birth...',
+                            class: 'form-control' %>
+
+                    <%= f.select :bloodgroup, [["O+", 1], ["O-", 2],["A+",3],["A-",4]], { class: "selectpicker" } %>
+                    </div>
+
+                    <div class="col-md-6">
+                      <%= f.select :living, [["Alive", 1], ["Dead", 2]], { class: "selectpicker", label:"Is Living" } %>
+                      <%= f.select :kid1order, [[1, 1], [2, 2],[3, 3],[4, 4],[5, 5],[6, 6],[7, 7],[8, 8]], { class: "selectpicker",label:"Child Order" } %>
+        </div>
+        <div id="div-extraname" class="col-md-6" style="display:none">
+                  <%= f.text_field :beforemarriageName, label: "Other Names Before Marriage",
+                          placeholder: 'Middle names before Marriage...',
+                          class: 'form-control' %>
+
+        </div>
+      </div>
+    </div>
+  </div>
+      <div class="modal-footer">
+        <%= f.submit "Add Details", class:"btn btn-success" %>
+        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+</div> 
+<div id="tree"></div>
+
+    <script type="text/javascript">
+        $(document).ready(function(){ 
+    $.ajax({
+                  type: 'GET',
+                  contentType: 'application/json; charset=utf-8',
+                  url: '/getFamilyData',
+                  dataType: 'json',
+                  success: function(data){
+                  console.log(data);
+                  //convert tags to hasMap
+                        var familyGroupTag = {
+                            group: true,
+                            template: "group_grey",
+                            groupState: OrgChart.EXPAND
+                        };
+                    var tags = data.tags.reduce(function(map, obj) {
+                        map[obj._id] = familyGroupTag;
+                        return map;
+                    }, {});
+                  //convert _id to id
+                  var i;
+                  var obj;
+                  var json = new Array();
+                  for (i = 0; i < data.doc.length; i++) { 
+                    obj = data.doc[i];
+                    obj.id = obj._id;
+                    delete obj._id;
+                    json.push(obj);
+                   }
+                   //console.log(json)
+ var webcallMeIcon = '<svg width="24" height="24" viewBox="0 0 300 400"><g transform="matrix(1,0,0,1,40,40)"><path fill="#5DB1FF" d="M260.423,0H77.431c-5.522,0-10,4.477-10,10v317.854c0,5.522,4.478,10,10,10h182.992c5.522,0,10-4.478,10-10V10 C270.423,4.477,265.945,0,260.423,0z M178.927,302.594c0,5.522-4.478,10-10,10c-5.523,0-10-4.478-10-10v-3.364h20V302.594z M250.423,279.229H87.431V58.624h162.992V279.229z" /><path fill="#5DB1FF" d="M118.5,229.156c4.042,4.044,9.415,6.271,15.132,6.271c5.715,0,11.089-2.227,15.133-6.269l29.664-29.662 c4.09-4.093,6.162-9.442,6.24-14.816c5.601-0.078,10.857-2.283,14.829-6.253l29.66-29.662c4.042-4.043,6.269-9.417,6.269-15.133 c0-5.716-2.227-11.09-6.269-15.13l-9.806-9.806c-4.041-4.043-9.415-6.27-15.132-6.27c-5.716,0-11.09,2.227-15.132,6.269 l-29.663,29.662c-4.092,4.092-6.164,9.443-6.242,14.817c-5.601,0.078-10.857,2.283-14.828,6.252l-29.661,29.662 c-4.042,4.043-6.269,9.418-6.268,15.136c0,5.716,2.227,11.089,6.269,15.129L118.5,229.156z M168.618,147.548l29.662-29.661 c1.587-1.587,3.696-2.461,5.94-2.461c2.243,0,4.353,0.874,5.938,2.461l9.808,9.808c1.586,1.586,2.46,3.694,2.46,5.937 c0,2.244-0.874,4.354-2.462,5.941l-29.658,29.661c-1.588,1.587-3.697,2.46-5.941,2.46c-2.243,0-4.353-0.874-5.938-2.46 l-0.309-0.309l19.598-19.598c2.539-2.539,2.539-6.654,0-9.192c-2.537-2.538-6.654-2.538-9.191,0l-19.599,19.598l-0.308-0.308 C165.344,156.152,165.345,150.823,168.618,147.548z M117.888,198.28l29.66-29.661c1.587-1.586,3.695-2.46,5.939-2.46 c2.242,0,4.349,0.872,5.934,2.455c0.002,0.001,0.004,0.003,0.005,0.005l0.309,0.309l-19.598,19.598 c-2.539,2.538-2.539,6.653,0,9.191c1.269,1.27,2.933,1.904,4.596,1.904s3.327-0.635,4.596-1.904l19.599-19.598l0.309,0.309 c3.273,3.273,3.273,8.603,0,11.877l-29.662,29.66c-1.588,1.588-3.698,2.462-5.941,2.462c-2.243,0-4.352-0.874-5.938-2.462 l-9.807-9.806c-1.586-1.586-2.46-3.694-2.46-5.938C115.426,201.978,116.3,199.868,117.888,198.28z" /></g></svg>';
+
+      for (var i = 0; i < json.length; i++) {
+    var node = json[i];
+    switch (node.gender) {
+      case "woman":
+        node.tags.push("woman");
+        break;
+    }
+  }
+        var chart = new OrgChart(document.getElementById("tree"), {
+            mouseScrool: OrgChart.action.none,
+            template: "diva",
+            enableDragDrop: true,
+            nodeBinding: {
+                field_0: "fname",
+                img_0: "img"
+            },
+        tags: tags ,
+        nodeMenu: {
+                father: {
+                    text: "Add Father",
+                    icon: OrgChart.icon.add(18, 18, '#FF8304'),
+                    onClick: addFather
+                },
+                mother: {
+                    text: "Add Mother",
+                    icon: OrgChart.icon.add(18, 18, '#FF8304'),
+                    onClick: addMother
+                },
+                brother: {
+                    text: "Add Brother",
+                    icon: OrgChart.icon.add(18, 18, '#FF8304'),
+                    onClick: addBrother
+                },
+                sister: {
+                    text: "Add Sister",
+                    icon: OrgChart.icon.add(18, 18, '#FF8304'),
+                    onClick: addSister
+                },
+                son: {
+                    text: "Add Son",
+                    icon: OrgChart.icon.add(18, 18, '#FF8304'),
+                    onClick: addSon
+                },
+                daughter: {
+                    text: "Add Daughter",
+                    icon: OrgChart.icon.add(18, 18, '#FF8304'),
+                    onClick: addDaughter
+                },
+                spouse: {
+                    text: "Add Spouse",
+                    icon: OrgChart.icon.add(18, 18, '#FF8304'),
+                    onClick: addSpouse
+                }
+            },
+            nodes: json
+        });
+        function addFather(nodeId) {
+            var nodeData = chart.get(nodeId);
+            $(".modal-body #id").val(nodeData["id"]);
+            $(".modal-body #familyid").val(nodeData["familyid"]);
+             $(".modal-body #relationtype").val('father');
+             $(".modal-body #pid").val(nodeData["pid"]);
+             $(".modal-body #gender").val('man');
+            $('#response').modal('show');
+        }
+        function addMother(nodeId) {
+            var nodeData = chart.get(nodeId);
+            $(".modal-body #id").val(nodeData["id"]);
+            $(".modal-body #familyid").val(nodeData["familyid"]);
+            $(".modal-body #pid").val(nodeData["pid"]);
+            $(".modal-body #relationtype").val('mother');
+            $(".modal-body #gender").val('woman');
+            $('#response').modal('show');
+        }
+        function addBrother(nodeId) {
+            var nodeData = chart.get(nodeId);
+            $(".modal-body #id").val(nodeData["id"]);
+            $(".modal-body #familyid").val(nodeData["familyid"]);
+            $(".modal-body #pid").val(nodeData["pid"]);
+            $(".modal-body #relationtype").val('brother');
+            $(".modal-body #gender").val('man');
+            $('#response').modal('show');
+        }
+        function addSister(nodeId) {
+            var nodeData = chart.get(nodeId);
+            $(".modal-body #id").val(nodeData["id"]);
+            $(".modal-body #familyid").val(nodeData["familyid"]);
+            $(".modal-body #pid").val(nodeData["pid"]);
+            $(".modal-body #relationtype").val('sister');
+            $(".modal-body #gender").val('woman');
+            $('#response').modal('show');
+        }
+        function addSon(nodeId) {
+            var nodeData = chart.get(nodeId);
+            $(".modal-body #id").val(nodeData["id"]);
+            $(".modal-body #familyid").val(nodeData["familyid"]);
+            $(".modal-body #pid").val(nodeData["pid"]);
+            $(".modal-body #relationtype").val('son');
+            $(".modal-body #gender").val('man');
+            $('#response').modal('show');
+        }
+        function addDaughter(nodeId) {
+            var nodeData = chart.get(nodeId);
+           $(".modal-body #id").val(nodeData["id"]);
+           $(".modal-body #familyid").val(nodeData["familyid"]);
+            $(".modal-body #pid").val(nodeData["pid"]);
+            $(".modal-body #relationtype").val('daughter');
+            $(".modal-body #gender").val('woman');
+            $('#response').modal('show');
+        }
+        function addSpouse(nodeId) {
+            var nodeData = chart.get(nodeId);
+           $(".modal-body #id").val(nodeData["id"]);
+           $(".modal-body #familyid").val(nodeData["familyid"]);
+            $(".modal-body #pid").val(nodeData["pid"]);
+            $(".modal-body #relationtype").val('spouse');
+            if (nodeData["gender"] == 'man'){
+            $(".modal-body #gender").val('woman');
+            }
+            else
+            {
+                $(".modal-body #gender").val('man'); 
+            }
+            $('#response').modal('show');
+        }
+
+}
+    });
+});
+    </script>

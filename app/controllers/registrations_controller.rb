@@ -7,7 +7,8 @@ class RegistrationsController < Devise::RegistrationsController
                                   :email,
                                   :mobile,
                                   :password,
-                                  :password_confirmation)
+                                  :password_confirmation,
+                                  :familyid)
   end
 
   def account_update_params
@@ -16,7 +17,8 @@ class RegistrationsController < Devise::RegistrationsController
                                   :mobile,
                                   :password,
                                   :password_confirmation,
-                                  :current_password)
+                                  :current_password,
+                                  :familyid)
   end
 
   protected
