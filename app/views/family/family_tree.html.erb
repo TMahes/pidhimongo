@@ -4,10 +4,15 @@
     width: 100%;
     height: 100%;
 }
+    #stree {
+    width: 100%;
+    height: 100%;
+}
 g.woman rect{
     fill: #FFC0CB;
 }
 
+ 
 </style>
 <div class="modal" id="response">
 <div class="modal-dialog">
@@ -87,6 +92,23 @@ g.woman rect{
     </div>
   </div>
       <div class="modal-footer">
+       <%= f.submit "Add Details", class:"btn btn-success", id: "add_details" %>
+        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div> 
+<div class="modal fade bd-example-modal-lg" id="viewtree">
+<div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title"> </h5>
+      <button class="close" data-dismiss="modal">&times;</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="modal-footer">
         <%= f.submit "Add Details", class:"btn btn-success" %>
         <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
       </div>
@@ -95,10 +117,14 @@ g.woman rect{
   </div>
 </div>
 </div> 
+
+
+
 <div id="tree"></div>
 
     <script type="text/javascript">
         $(document).ready(function(){ 
+            $('.mmodal').css("display", "none");
     $.ajax({
                   type: 'GET',
                   contentType: 'application/json; charset=utf-8',
@@ -137,16 +163,33 @@ g.woman rect{
         break;
     }
   }
+  OrgChart.templates.myTemplate = Object.assign({}, OrgChart.templates.olivia);
+  OrgChart.templates.myTemplate.link = 
+        '<g link-id="[1229][106]" class="link f2" level="0"><path stroke="#686868" stroke-width="1px" fill="none" link-id="[{id}][{1229}]" d="M{xa},{ya} C{xb},{yb} {xc},{yc} {xd},{yd}" /></g>';
+          OrgChart.clinkTemplates.myTemplate = {
+        defs: '<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path fill="#b4b4b4" d="M 0 0 L 10 5 L 0 10 z" /></marker>',
+        link: '<path marker-start="url(#line)" marker-end="url(#arrow)" stroke="#b4b4b4" stroke-width="2" fill="none" d="{d}" />',
+        label: '<text fill="#b4b4b4"  text-anchor="middle" x="{x}" y="{y}">{val}</text>'
+    };
+
         var chart = new OrgChart(document.getElementById("tree"), {
             mouseScrool: OrgChart.action.none,
-            template: "diva",
-            enableDragDrop: true,
+            template: "myTemplate",
+            enableDragDrop: false,
             nodeBinding: {
                 field_0: "fname",
                 img_0: "img"
             },
+        clinks: [
+            {from: 312, to: 1811, label: 'father', template:'myTemplate'} 
+        ],
         tags: tags ,
         nodeMenu: {
+                viewtree: {
+                    text: "View Tree",
+                    icon: OrgChart.icon.add(18, 18, '#FF8304'),
+                    onClick: viewtree
+                },
                 father: {
                     text: "Add Father",
                     icon: OrgChart.icon.add(18, 18, '#FF8304'),
@@ -185,6 +228,7 @@ g.woman rect{
             },
             nodes: json
         });
+
         function addFather(nodeId) {
             var nodeData = chart.get(nodeId);
             $(".modal-body #id").val(nodeData["id"]);
@@ -254,8 +298,44 @@ g.woman rect{
             }
             $('#response').modal('show');
         }
+        function viewtree(nodeId) {
+            var nodeData = chart.get(nodeId);
+           $(".modal-body #id").val(nodeData["id"]);
+           $(".modal-body #familyid").val(nodeData["familyid"]);
+            $(".modal-body #pid").val(nodeData["pid"]);
+            $(".modal-body #relationtype").val('daughter');
+            $(".modal-body #gender").val('woman');
+            $('#viewtree').modal('show');
+        }
 
 }
     });
 });
+    </script>
+    <script type="text/javascript">
+        // Get the modal
+var modal = document.getElementById("myModal");
+
+// Get the button that opens the modal
+var btn = document.getElementById("myBtn");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks on the button, open the modal
+btn.onclick = function() {
+  modal.style.display = "block";
+}
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+} 
     </script>

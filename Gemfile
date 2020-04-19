@@ -41,6 +41,7 @@ gem 'bson', '~> 4.5.0'
 gem 'mongoid'
 gem "paperclip"
 gem "mongoid-paperclip"
+gem "graphql"
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -83,3 +84,4 @@ gem 'will_paginate', '3.1.5'
 
 
 gem 'bootstrap-will_paginate', '0.0.10'
+gem 'graphiql-rails', group: :development

@@ -1,0 +1,833 @@
+  <style type="text/css">
+    /* CSS for the traditional context menu */
+    .menu {
+      display: none;
+      position: absolute;
+      opacity: 0;
+      margin: 0;
+      padding: 8px 0;
+      z-index: 999;
+      box-shadow: 0 5px 5px -3px rgba(0, 0, 0, .2), 0 8px 10px 1px rgba(0, 0, 0, .14), 0 3px 14px 2px rgba(0, 0, 0, .12);
+      list-style: none;
+      background-color: #ffffff;
+      border-radius: 4px;
+    }
+
+    .menu-item {
+      display: block;
+      position: relative;
+      min-width: 60px;
+      margin: 0;
+      padding: 6px 16px;
+      font: bold 12px sans-serif;
+      color: rgba(0, 0, 0, .87);
+      cursor: pointer;
+    }
+
+    .menu-item::before {
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      pointer-events: none;
+      content: "";
+      width: 100%;
+      height: 100%;
+      background-color: #000000;
+    }
+
+    .menu-item:hover::before {
+      opacity: .04;
+    }
+
+    .menu .menu {
+      top: -8px;
+      left: 100%;
+    }
+
+    .show-menu, .menu-item:hover > .menu {
+      display: block;
+      opacity: 1;
+    }
+  </style>
+  <script src="../release/go.js"></script>  
+  <link rel="stylesheet" href="../extensions/dataInspector.css" />
+  <script type="text/javascript">
+    var modalopen = $('#response').modal('show');
+  </script>
+  <script id="code">
+    function init() {
+      if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
+      var $ = go.GraphObject.make;
+       myDiagram =
+        $(go.Diagram, "myDiagramDiv",
+          {
+            initialAutoScale: go.Diagram.Uniform,
+            "undoManager.isEnabled": true,
+            layout:  // use a custom layout, defined below
+              $(GenogramLayout, { direction: 90, layerSpacing: 30, columnSpacing: 10 })
+          });
+
+      // This is the actual HTML context menu:
+      var cxElement = document.getElementById("contextMenu");
+
+      // Since we have only one main element, we don't have to declare a hide method,
+      // we can set mainElement and GoJS will hide it automatically
+      var myContextMenu = $(go.HTMLInfo, {
+        show: showContextMenu,
+        hide: hideContextMenu
+      });
+
+
+      function textStyle() {
+        return { font: "19pt  Segoe UI,sans-serif", stroke: "white" };
+      }
+
+      // This converter is used by the Picture.
+      function findHeadShot(key) {
+        if (key < 0 || key > 16) return "images/HSnopic.jpg"; // There are only 16 images on the server
+        return "images/HS" + key + ".jpg"
+      }
+
+      // two different node templates, one for each sex,
+      // named by the category value in the node data object
+      myDiagram.nodeTemplateMap.add("M",  // male
+        $(go.Node, "Auto",
+            $(go.Shape, "Rectangle",
+              { name: "SHAPE", fill: "#333333", stroke: 'white', strokeWidth: 3.5,
+              // set the port properties:
+              portId: "", fromLinkable: true, toLinkable: true, cursor: "pointer", contextMenu: myContextMenu }),
+          $(go.Panel, "Horizontal",
+            $(go.Picture,
+              {
+                name: "Picture",
+                desiredSize: new go.Size(70, 70),
+                margin: 1.5,
+              },
+              new go.Binding("source", "key", findHeadShot)),
+            // define the panel where the text will appear
+            $(go.Panel, "Table",
+              {
+                minSize: new go.Size(130, NaN),
+                maxSize: new go.Size(150, NaN),
+                margin: new go.Margin(6, 10, 0, 6),
+                defaultAlignment: go.Spot.Left
+              },
+              $(go.RowColumnDefinition, { column: 2, width: 4 }),
+              $(go.TextBlock, textStyle(),  // the name
+                {
+                  row: 0, column: 0, columnSpan: 5,
+                  font: "12pt Segoe UI,sans-serif",
+                  editable: true, isMultiline: false,
+                  minSize: new go.Size(10, 16)
+                },
+                new go.Binding("text", "name").makeTwoWay()),
+              $(go.TextBlock, "Title: ", textStyle(),
+                { row: 1, column: 0 }),
+              $(go.TextBlock, textStyle(),
+                {
+                  row: 1, column: 1, columnSpan: 4,
+                  editable: true, isMultiline: false,
+                  minSize: new go.Size(10, 14),
+                  margin: new go.Margin(0, 0, 0, 3)
+                },
+                new go.Binding("text", "title").makeTwoWay()),
+              $(go.TextBlock, textStyle(),
+                { row: 2, column: 0 },
+                new go.Binding("text", "key", function(v) { return "ID: " + v; })),
+              $(go.TextBlock, textStyle(),
+                { name: "boss", row: 2, column: 3, }, // we include a name so we can access this TextBlock when deleting Nodes/Links
+                new go.Binding("text", "parent", function(v) { return "Boss: " + v; })),
+              $(go.TextBlock, textStyle(),  // the comments
+                {
+                  row: 3, column: 0, columnSpan: 5,
+                  font: "italic 9pt sans-serif",
+                  wrap: go.TextBlock.WrapFit,
+                  editable: true,  // by default newlines are allowed
+                  minSize: new go.Size(10, 14)
+                },
+                new go.Binding("text", "comments").makeTwoWay())
+            )  // end Table Panel
+          ), // end Horizontal Panel
+
+          $(go.TextBlock,
+            { textAlign: "center", maxSize: new go.Size(80, NaN) },
+            new go.Binding("text", "n"))
+        ));
+
+ myDiagram.nodeTemplateMap.add("F",  // male
+        $(go.Node, "Auto",
+            $(go.Shape, "Rectangle",
+              { name: "SHAPE", fill: "#333333", stroke: 'white', strokeWidth: 3.5,
+              // set the port properties:
+              portId: "", fromLinkable: true, toLinkable: true, cursor: "pointer", contextMenu: myContextMenu  }),
+          $(go.Panel, "Horizontal",
+            $(go.Picture,
+              {
+                name: "Picture",
+                desiredSize: new go.Size(70, 70),
+                margin: 1.5,
+              },
+              new go.Binding("source", "key", findHeadShot)),
+            // define the panel where the text will appear
+            $(go.Panel, "Table",
+              {
+                minSize: new go.Size(130, NaN),
+                maxSize: new go.Size(150, NaN),
+                margin: new go.Margin(6, 10, 0, 6),
+                defaultAlignment: go.Spot.Left
+              },
+              $(go.RowColumnDefinition, { column: 2, width: 4 }),
+              $(go.TextBlock, textStyle(),  // the name
+                {
+                  row: 0, column: 0, columnSpan: 5,
+                  font: "12pt Segoe UI,sans-serif",
+                  editable: true, isMultiline: false,
+                  minSize: new go.Size(10, 16)
+                },
+                new go.Binding("text", "name").makeTwoWay()),
+              $(go.TextBlock, "Title: ", textStyle(),
+                { row: 1, column: 0 }),
+              $(go.TextBlock, textStyle(),
+                {
+                  row: 1, column: 1, columnSpan: 4,
+                  editable: true, isMultiline: false,
+                  minSize: new go.Size(10, 14),
+                  margin: new go.Margin(0, 0, 0, 3)
+                },
+                new go.Binding("text", "title").makeTwoWay()),
+              $(go.TextBlock, textStyle(),
+                { row: 2, column: 0 },
+                new go.Binding("text", "key", function(v) { return "ID: " + v; })),
+              $(go.TextBlock, textStyle(),
+                { name: "boss", row: 2, column: 3, }, // we include a name so we can access this TextBlock when deleting Nodes/Links
+                new go.Binding("text", "parent", function(v) { return "Boss: " + v; })),
+              $(go.TextBlock, textStyle(),  // the comments
+                {
+                  row: 3, column: 0, columnSpan: 5,
+                  font: "italic 9pt sans-serif",
+                  wrap: go.TextBlock.WrapFit,
+                  editable: true,  // by default newlines are allowed
+                  minSize: new go.Size(10, 14)
+                },
+                new go.Binding("text", "comments").makeTwoWay())
+            )  // end Table Panel
+          ), // end Horizontal Panel
+
+           $(go.TextBlock, textStyle(),
+                { row: 2, column: 0 , font: "italic 12pt sans-serif"},
+                new go.Binding("text", "key", function(v) { return "Name: " + n; }))
+        ));
+
+       myDiagram.contextMenu = myContextMenu;
+          // We don't want the div acting as a context menu to have a (browser) context menu!
+      cxElement.addEventListener("contextmenu", function(e) {
+        e.preventDefault();
+        return false;
+      }, false);
+
+      function hideCX() {
+        if (myDiagram.currentTool instanceof go.ContextMenuTool) {
+          myDiagram.currentTool.doCancel();
+        }
+      }
+
+      function showContextMenu(obj, diagram, tool) {
+        // Show only the relevant buttons given the current state.
+        
+        var cmd = diagram.commandHandler;
+
+        var hasMenuItem = false;
+        //console.log(nodeDataArray)
+        function maybeShowItem(elt, pred) {
+          if (pred) {
+            elt.style.display = "block";
+            hasMenuItem = true;
+            
+          } else {
+            elt.style.display = "none";
+          }
+        }
+           function changeColor() {
+              
+           }
+        
+        maybeShowItem(document.getElementById("Father"),  cmd.canCopySelection());
+        maybeShowItem(document.getElementById("Mother"), cmd.canCopySelection());
+        maybeShowItem(document.getElementById("Sister"), cmd.canPasteSelection(diagram.toolManager.contextMenuTool.mouseDownPoint));
+        maybeShowItem(document.getElementById("Brother"), cmd.canDeleteSelection());
+        maybeShowItem(document.getElementById("Daughter"), obj !== null);
+
+        // Now show the whole context menu element
+        if (hasMenuItem) {
+          cxElement.classList.add("show-menu");
+          // we don't bother overriding positionContextMenu, we just do it here:
+          var mousePt = diagram.lastInput.viewPoint;
+          cxElement.style.left = mousePt.x + 5 + "px";
+          cxElement.style.top = mousePt.y + "px";
+        }
+
+        // Optional: Use a `window` click listener with event capture to
+        //           remove the context menu if the user clicks elsewhere on the page
+        window.addEventListener("click", hideCX, true);
+      }
+
+      function hideContextMenu() {
+        cxElement.classList.remove("show-menu");
+        // Optional: Use a `window` click listener with event capture to
+        //           remove the context menu if the user clicks elsewhere on the page
+        window.removeEventListener("click", hideCX, true);
+      }
+
+    // This is the general menu command handler, parameterized by the name of the command.
+
+        // A custom command, for changing the color of the selected node(s).
+
+
+
+      // the representation of each label node -- nothing shows on a Marriage Link
+      myDiagram.nodeTemplateMap.add("LinkLabel",
+        $(go.Node, { selectable: false, width: 1, height: 1, fromEndSegmentLength: 20 }));
+
+
+      myDiagram.linkTemplate =  // for parent-child relationships
+        $(go.Link,
+          {
+            routing: go.Link.Orthogonal, corner: 5,
+            layerName: "Background", selectable: false,
+            fromSpot: go.Spot.Bottom, toSpot: go.Spot.Top
+          },
+          $(go.Shape, { stroke: "white", strokeWidth: 2 })
+        );
+
+      myDiagram.linkTemplateMap.add("Marriage",  // for marriage relationships
+        $(go.Link,
+          { selectable: false },
+          $(go.Shape, { strokeWidth: 2.5, stroke: "red" /* blue */ })
+        ));
+
+
+      // n: name, s: sex, m: mother, f: father, ux: wife, vir: husband, a: attributes/markers
+      setupDiagram(myDiagram, [
+        { key: 0, n: "Aaron", s: "M", ux: 1 },
+        { key: 1, n: "Alice", s: "F"},
+        { key: 2, n: "Bob", s: "M", m: 1, f: 0, ux: 3},
+        { key: 3, n: "Barbara", s: "F"},
+        { key: 4, n: "Bill", s: "M", m: 1, f: 0, ux: 5},
+        { key: 5, n: "Brooke", s: "F" },
+        { key: 6, n: "Claire", s: "F", m: 1, f: 0 },
+        { key: 7, n: "Carol", s: "F", m: 1, f: 0},
+        { key: 8, n: "Chloe", s: "F", m: 1, f: 0, vir: 9},
+        { key: 9, n: "Chris", s: "M", a: ["B", "H"] },
+        { key: 10, n: "Ellie", s: "F", m: 3, f: 2},
+        { key: 11, n: "Dan", s: "M", m: 3, f: 2},
+        { key: 12, n: "Eli", s: "F", vir: 13},
+        { key: 13, n: "David", s: "M", m: 5, f: 4},
+        { key: 14, n: "Emma", s: "F", m: 5, f: 4},
+        { key: 15, n: "Evan", s: "M", m: 8, f: 9},
+        { key: 16, n: "Ethan", s: "M", m: 8, f: 9},
+        { key: 17, n: "Eve", s: "F", vir: 16},
+        { key: 18, n: "Emily", s: "F", m: 8, f: 9 },
+        { key: 19, n: "Fred", s: "M", m: 17, f: 16},
+        { key: 20, n: "Faith", s: "F", m: 17, f: 16},
+        { key: 21, n: "Felicia", s: "F", m: 12, f: 13},
+        { key: 22, n: "Frank", s: "M", m: 12, f: 13}
+      ],
+      );
+    }
+
+
+    // create and initialize the Diagram.model given an array of node data representing people
+    function setupDiagram(diagram, array, focusId) {
+      diagram.model =
+        go.GraphObject.make(go.GraphLinksModel,
+          { // declare support for link label nodes
+            linkLabelKeysProperty: "labelKeys",
+            // this property determines which template is used
+            nodeCategoryProperty: "s",
+            // if a node data object is copied, copy its data.a Array
+            copiesArrays: true,
+            // create all of the nodes for people
+            nodeDataArray: array
+          });
+      setupMarriages(diagram);
+      setupParents(diagram);
+
+      var node = diagram.findNodeForKey(focusId);
+      if (node !== null) {
+        diagram.select(node);
+        // remove any spouse for the person under focus:
+        //node.linksConnected.each(function(l) {
+        //  if (!l.isLabeledLink) return;
+        //  l.opacity = 0;
+        //  var spouse = l.getOtherNode(node);
+        //  spouse.opacity = 0;
+        //  spouse.pickable = false;
+        //});
+      }
+    }
+
+    function findMarriage(diagram, a, b) {  // A and B are node keys
+      var nodeA = diagram.findNodeForKey(a);
+      var nodeB = diagram.findNodeForKey(b);
+      if (nodeA !== null && nodeB !== null) {
+        var it = nodeA.findLinksBetween(nodeB);  // in either direction
+        while (it.next()) {
+          var link = it.value;
+          // Link.data.category === "Marriage" means it's a marriage relationship
+          if (link.data !== null && link.data.category === "Marriage") return link;
+        }
+      }
+      return null;
+    }
+
+    // now process the node data to determine marriages
+    function setupMarriages(diagram) {
+      var model = diagram.model;
+      var nodeDataArray = model.nodeDataArray;
+      for (var i = 0; i < nodeDataArray.length; i++) {
+        var data = nodeDataArray[i];
+        var key = data.key;
+        var uxs = data.ux;
+        if (uxs !== undefined) {
+          if (typeof uxs === "number") uxs = [uxs];
+          for (var j = 0; j < uxs.length; j++) {
+            var wife = uxs[j];
+            if (key === wife) {
+              // or warn no reflexive marriages
+              continue;
+            }
+            var link = findMarriage(diagram, key, wife);
+            if (link === null) {
+              // add a label node for the marriage link
+              var mlab = { s: "LinkLabel" };
+              model.addNodeData(mlab);
+              // add the marriage link itself, also referring to the label node
+              var mdata = { from: key, to: wife, labelKeys: [mlab.key], category: "Marriage" };
+              model.addLinkData(mdata);
+            }
+          }
+        }
+        var virs = data.vir;
+        if (virs !== undefined) {
+          if (typeof virs === "number") virs = [virs];
+          for (var j = 0; j < virs.length; j++) {
+            var husband = virs[j];
+            if (key === husband) {
+              // or warn no reflexive marriages
+              continue;
+            }
+            var link = findMarriage(diagram, key, husband);
+            if (link === null) {
+              // add a label node for the marriage link
+              var mlab = { s: "LinkLabel" };
+              model.addNodeData(mlab);
+              // add the marriage link itself, also referring to the label node
+              var mdata = { from: key, to: husband, labelKeys: [mlab.key], category: "Marriage" };
+              model.addLinkData(mdata);
+            }
+          }
+        }
+      }
+    }
+
+    // process parent-child relationships once all marriages are known
+    function setupParents(diagram) {
+      var model = diagram.model;
+      var nodeDataArray = model.nodeDataArray;
+      for (var i = 0; i < nodeDataArray.length; i++) {
+        var data = nodeDataArray[i];
+        var key = data.key;
+        var mother = data.m;
+        var father = data.f;
+        if (mother !== undefined && father !== undefined) {
+          var link = findMarriage(diagram, mother, father);
+          if (link === null) {
+            // or warn no known mother or no known father or no known marriage between them
+            if (window.console) window.console.log("unknown marriage: " + mother + " & " + father);
+            continue;
+          }
+          var mdata = link.data;
+          var mlabkey = mdata.labelKeys[0];
+          var cdata = { from: mlabkey, to: key };
+          myDiagram.model.addLinkData(cdata);
+        }
+      }
+    }
+
+
+    // A custom layout that shows the two families related to a person's parents
+    function GenogramLayout() {
+      go.LayeredDigraphLayout.call(this);
+      this.initializeOption = go.LayeredDigraphLayout.InitDepthFirstIn;
+      this.spouseSpacing = 30;  // minimum space between spouses
+    }
+    go.Diagram.inherit(GenogramLayout, go.LayeredDigraphLayout);
+
+    GenogramLayout.prototype.makeNetwork = function(coll) {
+      // generate LayoutEdges for each parent-child Link
+      var net = this.createNetwork();
+      if (coll instanceof go.Diagram) {
+        this.add(net, coll.nodes, true);
+        this.add(net, coll.links, true);
+      } else if (coll instanceof go.Group) {
+        this.add(net, coll.memberParts, false);
+      } else if (coll.iterator) {
+        this.add(net, coll.iterator, false);
+      }
+      return net;
+    };
+
+    // internal method for creating LayeredDigraphNetwork where husband/wife pairs are represented
+    // by a single LayeredDigraphVertex corresponding to the label Node on the marriage Link
+    GenogramLayout.prototype.add = function(net, coll, nonmemberonly) {
+      var multiSpousePeople = new go.Set();
+      // consider all Nodes in the given collection
+      var it = coll.iterator;
+      while (it.next()) {
+        var node = it.value;
+        if (!(node instanceof go.Node)) continue;
+        if (!node.isLayoutPositioned || !node.isVisible()) continue;
+        if (nonmemberonly && node.containingGroup !== null) continue;
+        // if it's an unmarried Node, or if it's a Link Label Node, create a LayoutVertex for it
+        if (node.isLinkLabel) {
+          // get marriage Link
+          var link = node.labeledLink;
+          var spouseA = link.fromNode;
+          var spouseB = link.toNode;
+          // create vertex representing both husband and wife
+          var vertex = net.addNode(node);
+          // now define the vertex size to be big enough to hold both spouses
+          vertex.width = spouseA.actualBounds.width + this.spouseSpacing + spouseB.actualBounds.width;
+          vertex.height = Math.max(spouseA.actualBounds.height, spouseB.actualBounds.height);
+          vertex.focus = new go.Point(spouseA.actualBounds.width + this.spouseSpacing / 2, vertex.height / 2);
+        } else {
+          // don't add a vertex for any married person!
+          // instead, code above adds label node for marriage link
+          // assume a marriage Link has a label Node
+          var marriages = 0;
+          node.linksConnected.each(function(l) { if (l.isLabeledLink) marriages++; });
+          if (marriages === 0) {
+            var vertex = net.addNode(node);
+          } else if (marriages > 1) {
+            multiSpousePeople.add(node);
+          }
+        }
+      }
+      // now do all Links
+      it.reset();
+      while (it.next()) {
+        var link = it.value;
+        if (!(link instanceof go.Link)) continue;
+        if (!link.isLayoutPositioned || !link.isVisible()) continue;
+        if (nonmemberonly && link.containingGroup !== null) continue;
+        // if it's a parent-child link, add a LayoutEdge for it
+        if (!link.isLabeledLink) {
+          var parent = net.findVertex(link.fromNode);  // should be a label node
+          var child = net.findVertex(link.toNode);
+          if (child !== null) {  // an unmarried child
+            net.linkVertexes(parent, child, link);
+          } else {  // a married child
+            link.toNode.linksConnected.each(function(l) {
+              if (!l.isLabeledLink) return;  // if it has no label node, it's a parent-child link
+              // found the Marriage Link, now get its label Node
+              var mlab = l.labelNodes.first();
+              // parent-child link should connect with the label node,
+              // so the LayoutEdge should connect with the LayoutVertex representing the label node
+              var mlabvert = net.findVertex(mlab);
+              if (mlabvert !== null) {
+                net.linkVertexes(parent, mlabvert, link);
+              }
+            });
+          }
+        }
+      }
+
+      while (multiSpousePeople.count > 0) {
+        // find all collections of people that are indirectly married to each other
+        var node = multiSpousePeople.first();
+        var cohort = new go.Set();
+        this.extendCohort(cohort, node);
+        // then encourage them all to be the same generation by connecting them all with a common vertex
+        var dummyvert = net.createVertex();
+        net.addVertex(dummyvert);
+        var marriages = new go.Set();
+        cohort.each(function(n) {
+          n.linksConnected.each(function(l) {
+            marriages.add(l);
+          })
+        });
+        marriages.each(function(link) {
+          // find the vertex for the marriage link (i.e. for the label node)
+          var mlab = link.labelNodes.first()
+          var v = net.findVertex(mlab);
+          if (v !== null) {
+            net.linkVertexes(dummyvert, v, null);
+          }
+        });
+        // done with these people, now see if there are any other multiple-married people
+        multiSpousePeople.removeAll(cohort);
+      }
+    };
+
+    // collect all of the people indirectly married with a person
+    GenogramLayout.prototype.extendCohort = function(coll, node) {
+      if (coll.has(node)) return;
+      coll.add(node);
+      var lay = this;
+      node.linksConnected.each(function(l) {
+        if (l.isLabeledLink) {  // if it's a marriage link, continue with both spouses
+          lay.extendCohort(coll, l.fromNode);
+          lay.extendCohort(coll, l.toNode);
+        }
+      });
+    };
+
+    GenogramLayout.prototype.assignLayers = function() {
+      go.LayeredDigraphLayout.prototype.assignLayers.call(this);
+      var horiz = this.direction == 0.0 || this.direction == 180.0;
+      // for every vertex, record the maximum vertex width or height for the vertex's layer
+      var maxsizes = [];
+      this.network.vertexes.each(function(v) {
+        var lay = v.layer;
+        var max = maxsizes[lay];
+        if (max === undefined) max = 0;
+        var sz = (horiz ? v.width : v.height);
+        if (sz > max) maxsizes[lay] = sz;
+      });
+      // now make sure every vertex has the maximum width or height according to which layer it is in,
+      // and aligned on the left (if horizontal) or the top (if vertical)
+      this.network.vertexes.each(function(v) {
+        var lay = v.layer;
+        var max = maxsizes[lay];
+        if (horiz) {
+          v.focus = new go.Point(0, v.height / 2);
+          v.width = max;
+        } else {
+          v.focus = new go.Point(v.width / 2, 0);
+          v.height = max;
+        }
+      });
+      // from now on, the LayeredDigraphLayout will think that the Node is bigger than it really is
+      // (other than the ones that are the widest or tallest in their respective layer).
+    };
+
+    GenogramLayout.prototype.commitNodes = function() {
+      go.LayeredDigraphLayout.prototype.commitNodes.call(this);
+      // position regular nodes
+      this.network.vertexes.each(function(v) {
+        if (v.node !== null && !v.node.isLinkLabel) {
+          v.node.position = new go.Point(v.x, v.y);
+        }
+      });
+      // position the spouses of each marriage vertex
+      var layout = this;
+      this.network.vertexes.each(function(v) {
+        if (v.node === null) return;
+        if (!v.node.isLinkLabel) return;
+        var labnode = v.node;
+        var lablink = labnode.labeledLink;
+        // In case the spouses are not actually moved, we need to have the marriage link
+        // position the label node, because LayoutVertex.commit() was called above on these vertexes.
+        // Alternatively we could override LayoutVetex.commit to be a no-op for label node vertexes.
+        lablink.invalidateRoute();
+        var spouseA = lablink.fromNode;
+        var spouseB = lablink.toNode;
+        // prefer fathers on the left, mothers on the right
+        if (spouseA.data.s === "F") {  // sex is female
+          var temp = spouseA;
+          spouseA = spouseB;
+          spouseB = temp;
+        }
+        // see if the parents are on the desired sides, to avoid a link crossing
+        var aParentsNode = layout.findParentsMarriageLabelNode(spouseA);
+        var bParentsNode = layout.findParentsMarriageLabelNode(spouseB);
+        if (aParentsNode !== null && bParentsNode !== null && aParentsNode.position.x > bParentsNode.position.x) {
+          // swap the spouses
+          var temp = spouseA;
+          spouseA = spouseB;
+          spouseB = temp;
+        }
+        spouseA.position = new go.Point(v.x, v.y);
+        spouseB.position = new go.Point(v.x + spouseA.actualBounds.width + layout.spouseSpacing, v.y);
+        if (spouseA.opacity === 0) {
+          var pos = new go.Point(v.centerX - spouseA.actualBounds.width / 2, v.y);
+          spouseA.position = pos;
+          spouseB.position = pos;
+        } else if (spouseB.opacity === 0) {
+          var pos = new go.Point(v.centerX - spouseB.actualBounds.width / 2, v.y);
+          spouseA.position = pos;
+          spouseB.position = pos;
+        }
+      });
+      // position only-child nodes to be under the marriage label node
+      this.network.vertexes.each(function(v) {
+        if (v.node === null || v.node.linksConnected.count > 1) return;
+        var mnode = layout.findParentsMarriageLabelNode(v.node);
+        if (mnode !== null && mnode.linksConnected.count === 1) {  // if only one child
+          var mvert = layout.network.findVertex(mnode);
+          var newbnds = v.node.actualBounds.copy();
+          newbnds.x = mvert.centerX - v.node.actualBounds.width / 2;
+          // see if there's any empty space at the horizontal mid-point in that layer
+          var overlaps = layout.diagram.findObjectsIn(newbnds, function(x) { return x.part; }, function(p) { return p !== v.node; }, true);
+          if (overlaps.count === 0) {
+            v.node.move(newbnds.position);
+          }
+        }
+      });
+    };
+
+    GenogramLayout.prototype.findParentsMarriageLabelNode = function(node) {
+      var it = node.findNodesInto();
+      while (it.next()) {
+        var n = it.value;
+        if (n.isLinkLabel) return n;
+      }
+      return null;
+    };
+    function cxcommand(event, val) {
+
+      if (val === undefined) val = event.currentTarget.id;
+      var diagram = myDiagram;
+      var model = diagram.model;
+      var dataObj = "";
+      var nodeDataArray = model.nodeDataArray;
+      diagram.selection.each(function(node) {
+        dataObj = node.data
+      })
+      console.log(dataObj) 
+      
+      switch (val) {
+        case "Father": popup(dataObj,"father") ; break;
+        case "Mother": diagram.commandHandler.copySelection(); break;
+        case "Brother": diagram.commandHandler.pasteSelection(diagram.toolManager.contextMenuTool.mouseDownPoint); break;
+        case "Sister": changeColor; break;
+      }
+      diagram.currentTool.stopTool();
+    }
+    function popup(dataObj,relation){
+      $(".modal-body #id").val(dataObj.key);
+       $(".modal-body #relationtype").val(relation);
+       $(".modal-body #familyid").val(dataObj.familyid);
+      $('#response').modal('show')
+    }
+
+    // end GenogramLayout class
+  </script>
+<body onload="init()">
+<div id="sample">
+  <div id="myDiagramDiv" style="background-color: #34343C; border: solid 1px black; height: 570px;"></div>
+      <ul id="contextMenu" class="menu">
+        <li id="Father" class="menu-item" onclick="cxcommand(event)">Father</li>
+        <li id="Mother" class="menu-item" onclick="cxcommand(event)">Mother</li>
+        <li id="Brother" class="menu-item" onclick="cxcommand(event)">Brother</li>
+        <li id="Sister" class="menu-item" onclick="cxcommand(event)">Sister</li>
+        <li id="Daughter" class="menu-item" onclick="cxcommand(event);">Daughter</li>
+        
+      </ul>
+
+</div>
+
+<div class="modal" id="response">
+<div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title"> </h5>
+      <button class="close" data-dismiss="modal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="list-group">
+        <div class="d-flex w-100 justify-content-between">
+          <div class="row">
+            <%= bootstrap_form_tag :url => "/build_genogram", :remote => true, :html => {
+                                                  :id => 'regForm', :name => 'relationDetails,', :'data-ajax' => false, :multipart => true } do |f| %>
+                    <div class="col-md-6">
+                         <%= f.hidden_field :id, value:"" %>
+                         <%= f.hidden_field :familyid, value:"" %>
+                         <%= f.hidden_field :pid, value:"" %>
+                         <%= f.hidden_field :gender, value:"" %>
+                         <%= f.hidden_field :relationtype, value:"" %>
+                         <%= f.hidden_field :familyid, value:"" %>
+                         
+
+                      <%= f.text_field :fname, label: "First Name",
+                              placeholder: 'FirstName...',
+                              class: 'form-control' %>
+                      <%= f.text_field :midname, label: "Middle Name",
+                              placeholder: 'MiddleName...',
+                              class: 'form-control' %>
+                    </div>
+
+                     <div class="col-md-6">
+                       <%= f.text_field :flastname, label: " Last Name",
+                               placeholder: 'LastName...',
+                               class: 'form-control' %>
+
+                               <%= f.text_field :otherNames, label: "Any other Names",
+                                       placeholder: 'Known by other Names...',
+                                       class: 'form-control' %>
+                     </div>
+
+                  <div class="col-md-6">
+                    <%= f.email_field :email,  label: "Email",
+                              placeholder: 'email' ,
+                              class: 'form-control' %>
+
+                    </div>
+                        <div class="col-md-6">
+                  <%= f.file_field "avatar" %>
+
+        </div>
+                  <div class="col-md-6">
+                    <%= f.phone_field :mobile, label: "Mobile No",
+                            placeholder:'Mobile' ,
+                            class: 'form-control' %>
+                  </div>
+
+                  <div class="col-md-6">
+                    <%= f.date_field :dob, label: "Date of Birth",
+                            placeholder: 'Date of Birth...',
+                            class: 'form-control' %>
+
+                    <%= f.select :bloodgroup, [["O+", 1], ["O-", 2],["A+",3],["A-",4]], { class: "selectpicker" } %>
+                    </div>
+
+                    <div class="col-md-6">
+                      <%= f.select :living, [["Alive", 1], ["Dead", 2]], { class: "selectpicker", label:"Is Living" } %>
+                      <%= f.select :kid1order, [[1, 1], [2, 2],[3, 3],[4, 4],[5, 5],[6, 6],[7, 7],[8, 8]], { class: "selectpicker",label:"Child Order" } %>
+        </div>
+        <div id="div-extraname" class="col-md-6" style="display:none">
+                  <%= f.text_field :beforemarriageName, label: "Other Names Before Marriage",
+                          placeholder: 'Middle names before Marriage...',
+                          class: 'form-control' %>
+
+        </div>
+      </div>
+    </div>
+  </div>
+      <div class="modal-footer">
+       <%= f.submit "Add Details", class:"btn btn-success", id: "add_details" %>
+        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div> 
+<div class="modal fade bd-example-modal-lg" id="viewtree">
+<div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title"> </h5>
+      <button class="close" data-dismiss="modal">&times;</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="modal-footer">
+        <%= f.submit "Add Details", class:"btn btn-success" %>
+        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+</div> 

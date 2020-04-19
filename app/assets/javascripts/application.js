@@ -20,7 +20,7 @@
 //= require bootstrap-multiselect
 //= require d3
 //= require dTree
-//= require orgchart
+//= require go
 (function() {
   $(document).on('click', '.toggle-window', function(e) {
     e.preventDefault();

@@ -88,7 +88,7 @@ end
     db = Mongoid::Clients.default
     collectionfamily = db[:family]
     @family._id = a.pop
-    @family.familyid = a.pop
+    @family.familyid = a.pop.to_s
     @family.fname = params[:fname]
     @family.lname = params[:flastname]
     @family.email = params[:email]
@@ -97,10 +97,10 @@ end
     @family.gender = params[:gender]
     @family.avatar = params[:avatar]
     @family.save
-    @cuser = Family.find_by(_id:@family.id.to_i)
+    @cuser = Family.find_by(_id:@family.id)
     Family.where(id: @family.id).add_to_set("tags" => tag_value.to_s)
     db[:tags].insert_one('_id':tag_value,'template': 'familyGroupTag')
-     db[:families].update_one({'_id': @family.id.to_i},{'$set': {'img': @cuser.avatar.url(:thumb)}},{multi: false})
+     db[:families].update_one({'_id': @family.id},{'$set': {'img': @cuser.avatar.url(:thumb)}},{multi: false})
     db[:users].update_one({'_id': current_user.id},{'$set': {'familyid': @family.familyid.to_s }},{multi: false})
     redirect_to '/confirm'
 

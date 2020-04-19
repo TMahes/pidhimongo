@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  if Rails.env.development?
+    mount GraphiQL::Rails::Engine, at: "/graphiql", graphql_path: "/graphql"
+  end
+  post "/graphql", to: "graphql#execute"
   #devise_for :users
   devise_for :users, :controllers => {:registrations => "registrations"}
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
@@ -35,10 +39,13 @@ Rails.application.routes.draw do
 
   post 'build_profile', to: 'profile#addtoProfiles'
   post 'build_family', to: 'family#addtoFamily'
+  post 'build_genogram', to: 'family#addtoFamily'
   get 'family_tree', to: 'family#showTree'
+  get 'genogram_tree', to: 'genogram#showTree'
   get 'show_tree', to: 'build_tree#showTree'
   get 'getTreeData', to: 'profile#getTreeData'
   get 'getFamilyData', to: 'family#getFamilyData'
+  post 'getFamilyJsonData', to: 'family#getFamilyJsonData'
   get 'view_profile', to: 'build_tree#viewProfile'
   get 'search_path', to: 'profile#searchProfile' , :defaults => { :format => 'text/html' }
    get 'search', to: 'profile#search'

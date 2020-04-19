@@ -1,20 +1,22 @@
-class Family
+class Genogram
     include Mongoid::Document
 	include Mongoid::Paperclip
     #belongs_to :user, :foreign_key => :user
     belongs_to :user
     field :_id
-    field :id
-    field :familyid
-    field :sfamilyid
-    field :pid, type: String
-    field :tags, type: Array
+    field :key
+    field :s
+    field :m
+    field :f
+    field :ux, type: Array
+    field :vir, type: Array
     field :fname
+    field :familyid
     field :lname
     field :email
-    field :gender
     field :mobile
     field :dob
+    field :dod
     field :img
     field :avatar
   has_mongoid_attached_file :avatar, styles: { medium: "300x300", thumb: "100x100" }

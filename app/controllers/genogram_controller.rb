@@ -1,4 +1,4 @@
-class FamilyController < ApplicationController
+class GenogramController < ApplicationController
 
 skip_before_action :verify_authenticity_token
 
@@ -31,27 +31,27 @@ skip_before_action :verify_authenticity_token
     b = (1000..1999).to_a.shuffle 
     c = (100..999).to_a.shuffle 
     tag_value = b.pop
-    @family = Family.new
+    @genogram = Genogram.new
     db = Mongoid::Clients.default
-    collectionfamily = db[:family]
-    @family._id = a.pop
-    @family.familyid = params[:familyid]
-    @family.sfamilyid = params[:familyid]
-    @family.fname = params[:fname]
-    @family.lname = params[:flastname]
-    @family.email = params[:email]
-    @family.mobile = params[:mobile]
-    @family.dob = params[:dob]
-    @family.gender = params[:gender]
-    @family.avatar = params[:avatar]
-    @family.save
-    @cuser = Family.find_by(_id:@family.id.to_i)
-    Family.where(id: @family.id).add_to_set("tags" => tag_value.to_s)
+    collectionfamily = db[:genogram]
+    @genogram._id = a.pop
+    @genogram.familyid = params[:familyid]
+    @genogram.sfamilyid = params[:familyid]
+    @genogram.fname = params[:fname]
+    @genogram.lname = params[:flastname]
+    @genogram.email = params[:email]
+    @genogram.mobile = params[:mobile]
+    @genogram.dob = params[:dob]
+    @genogram.gender = params[:gender]
+    @genogram.avatar = params[:avatar]
+    @genogram.save
+    @cuser = Genogram.find_by(_id:@genogram.id.to_i)
+    Genogram.where(id: @genogram.id).add_to_set("tags" => tag_value.to_s)
     db[:tags].insert_one('_id':tag_value,'template': 'familyGroupTag')
-     db[:families].update_one({'_id': @family.id.to_i},{'$set': {'img': @cuser.avatar.url(:thumb)}},{multi: false})
+     db[:genogram].update_one({'_id': @genogram.id.to_i},{'$set': {'img': @cuser.avatar.url(:thumb)}},{multi: false})
 
     if params[:relationtype] == 'father'
-    db[:families].update_one({'_id': params[:id].to_i},{'$set': {'pid': @family._id}},{multi: false})
+    db[:genogram].update_one({'_id': params[:id].to_i},{'$set': {'pid': @genogram._id}},{multi: false})
     end
     
     if params[:relationtype] == 'mother'
@@ -83,7 +83,7 @@ end
   end
  
    def showTree
-    render 'family_tree'
+    render 'genogram_tree'
   end
 
       def getFamilyData
