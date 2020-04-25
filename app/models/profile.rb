@@ -2,7 +2,7 @@ class Profile
 	include Mongoid::Document
 	include Mongoid::Paperclip
     #belongs_to :user, :foreign_key => :user
-    belongs_to :family
+   
     field :userid
     field :regid
     field :fname

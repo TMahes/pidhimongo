@@ -1,4 +1,41 @@
+  <script src="https://use.fontawesome.com/ae8d15b2f5.js"></script>
+  <script type="javascript" src="/javascripts/ZoomSlider.js"></script>
   <style type="text/css">
+    /* Left modal */
+    .listing-tab{
+    padding:0;    
+}.related-artist .artist-next{padding-left:0;}
+.related-artist .col-md-12{padding-right:0;}
+.play-mix-btn span {
+    color: #1775bc;
+}
+.related-artist img{width:100%;}
+.related-artist h3 {
+    font-size: 17px;
+    margin-left: 15px;
+    margin-top: 9px;
+}.related-artist{overflow:hidden;padding-bottom:10px;}
+.listing-tab .tab-content ul{padding:0;margin:0;}
+.listing-tab .tab-content ul li {
+    list-style-type: none;
+    border-bottom: 1px solid #eee;
+    padding: 8px;
+}.listing-tab .tab-content ul li {
+    list-style-type: none;
+    border-bottom: 1px solid #eee;
+    padding: 8px;
+    padding-left: 20px;
+    font-size: 13px;
+    color: #666;
+}.listing-tab .tab-content ul li a{text-decoration:none; color:#666;}
+.listing-tab .tab-content ul li span{display:inline-block;float:right;padding-right:10px;}
+.listing-tab .nav-tabs>li,.nav-tabs>li a:hover{margin-bottom:0;background:none;}
+.listing-tab .nav-tabs>li.active>a, .nav-tabs>li.active>a:hover, .nav-tabs>li.active>a:focus{border:none;background:none;}
+.listing-tab .nav-tabs>li>a:hover{border-color:none;color:red;}
+.listing-tab .nav-tabs>li>a{border:0;padding:17px 0 7px;color:#333;margin-left:15px;}
+.listing-tab .nav-tabs>li.active>a{border-bottom:2px solid #bb0000;color:#000;}
+.listing-tab{background-color:#fff;}
+
     /* CSS for the traditional context menu */
     .menu {
       display: none;
@@ -49,13 +86,129 @@
       display: block;
       opacity: 1;
     }
+    .displayNone{
+      display: none;
+    }
+    /* Left & Right Panel */
+      .modal.left .modal-dialog,
+  .modal.right .modal-dialog {
+    position: fixed;
+    margin: auto;
+    width: 420px;
+    height: 100%;
+    -webkit-transform: translate3d(0%, 0, 0);
+        -ms-transform: translate3d(0%, 0, 0);
+         -o-transform: translate3d(0%, 0, 0);
+            transform: translate3d(0%, 0, 0);
+  }
+
+  .modal.left .modal-content,
+  .modal.right .modal-content {
+    height: 100%;
+    overflow-y: auto;
+  }
+  
+  .modal.left .modal-body,
+  .modal.right .modal-body {
+    padding: 15px 15px 80px;
+  }
+
+/*Left*/
+  .modal.left.fade .modal-dialog{
+    left: -320px;
+    -webkit-transition: opacity 0.3s linear, left 0.3s ease-out;
+       -moz-transition: opacity 0.3s linear, left 0.3s ease-out;
+         -o-transition: opacity 0.3s linear, left 0.3s ease-out;
+            transition: opacity 0.3s linear, left 0.3s ease-out;
+  }
+  
+  .modal.left.fade.in .modal-dialog{
+    left: 0;
+  }
+        
+/*Right*/
+  .modal.right.fade .modal-dialog {
+    right: -320px;
+    -webkit-transition: opacity 0.3s linear, right 0.3s ease-out;
+       -moz-transition: opacity 0.3s linear, right 0.3s ease-out;
+         -o-transition: opacity 0.3s linear, right 0.3s ease-out;
+            transition: opacity 0.3s linear, right 0.3s ease-out;
+  }
+  
+  .modal.right.fade.in .modal-dialog {
+    right: 0;
+  }
+
+/* ----- MODAL STYLE ----- */
+  .modal-content {
+    border-radius: 0;
+    border: none;
+  }
+
+  .modal-header {
+    border-bottom-color: #EEEEEE;
+    background-color: #FAFAFA;
+  }
+
+/* ----- v CAN BE DELETED v ----- */
+
+
+.demo {
+  padding-top: 60px;
+  padding-bottom: 110px;
+}
+
+.btn-demo {
+  margin: 15px;
+  padding: 10px 15px;
+  border-radius: 0;
+  font-size: 16px;
+  background-color: #FFFFFF;
+}
+
+.btn-demo:focus {
+  outline: 0;
+}
+
+.demo-footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  padding: 15px;
+  background-color: #212121;
+  text-align: center;
+}
+
+.demo-footer > a {
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 16px;
+  color: #fff;
+}
+.active a{
+  background-color: #fff !important;
+}
   </style>
-  <script src="../release/go.js"></script>  
-  <link rel="stylesheet" href="../extensions/dataInspector.css" />
-  <script type="text/javascript">
-    var modalopen = $('#response').modal('show');
-  </script>
+
   <script id="code">
+                  var i;
+                  var obj;
+                  var jsonData = new Array();
+           $(document).ready(function(){ 
+           $.ajax({
+                  type: 'GET',
+                  contentType: 'application/json; charset=utf-8',
+                  url: '/getGenogramData',
+                  dataType: 'json',
+                  success: function(data){
+                  jsonData = data.doc;
+                   console.log("first"+jsonData);
+                init();
+                 }
+
+               })
+    });
+ console.log("second"+jsonData);
     function init() {
       if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
       var $ = go.GraphObject.make;
@@ -64,10 +217,96 @@
           {
             initialAutoScale: go.Diagram.Uniform,
             "undoManager.isEnabled": true,
+            "allowDrop": true,
+            "draggingTool.isEnabled": false,
             layout:  // use a custom layout, defined below
-              $(GenogramLayout, { direction: 90, layerSpacing: 30, columnSpacing: 10 })
-          });
+              $(GenogramLayout, { direction: 90, layerSpacing: 30, columnSpacing: 10 }),
 
+          });
+        zoomSlider = new ZoomSlider(myDiagram);
+    //=======================================================HyperText Start
+    go.GraphObject.defineBuilder("HyperlinkText", function(args) {
+  // the URL is required as the first argument, either a string or a side-effect-free function returning a string
+  var url = go.GraphObject.takeBuilderArgument(args, undefined, function(x) { return typeof x === "string" || typeof x === "function"; });
+  // the text for the HyperlinkText is the optional second argument, either a string or a side-effect-free function returning a string
+  var text = go.GraphObject.takeBuilderArgument(args, null, function(x) { return typeof x === "string" || typeof x === "function"; });
+
+  // see if the visual tree is supplied in the arguments to the "HyperlinkText"
+  var anyGraphObjects = false;
+  for (var i = 0; i < args.length; i++) {
+    var a = args[i];
+    if (a && a instanceof go.GraphObject) anyGraphObjects = true;
+  }
+
+  // define the click behavior
+  var click =
+    function(e, obj) {
+      var u = obj._url;
+      if (typeof u === "function") u = u(obj.findTemplateBinder());
+      if (u) Invite();
+    };
+
+  // define the tooltip
+
+  // if the text is provided, use a new TextBlock; otherwise assume the TextBlock is provided
+  if (typeof (text) === "string" || typeof (text) === "function" || !anyGraphObjects) {
+    if (text === null && typeof (url) === "string") text = url;
+    var tb = go.GraphObject.make(go.TextBlock,
+                {
+                  "_url": url,
+                  cursor: "pointer",
+                  mouseEnter: function(e, obj) {
+                    var u = obj._url;
+                    if (typeof u === "function") u = u(obj.findTemplateBinder());
+                    if (u) obj.isUnderline = true;
+                  },
+                  mouseLeave: function(e, obj) { obj.isUnderline = false; },
+                  click: click,  // defined above
+                }
+              );
+    if (typeof(text) === "string") {
+      tb.text = text;
+    } else if (typeof(text) === "function") {
+      tb.bind(new go.Binding("text", "", text).ofObject())
+    } else if (typeof (url) === "function") {
+      tb.bind(new go.Binding("text", "", url).ofObject())
+    }
+    return tb;
+  } else {
+    function findTextBlock(obj) {
+      if (obj instanceof go.TextBlock) return obj;
+      if (obj instanceof go.Panel) {
+        var it = obj.elements;
+        while (it.next()) {
+          var result = findTextBlock(it.value);
+          if (result !== null) return result;
+        }
+      }
+      return null;
+    }
+    return go.GraphObject.make(go.Panel,
+      {
+        "_url": url,
+        cursor: "pointer",
+        mouseEnter: function(e, panel) {
+          var tb = findTextBlock(panel);
+          var u = panel._url;
+          if (typeof u === "function") u = u(panel.findTemplateBinder());
+          if (tb !== null && u) tb.isUnderline = true;
+        },
+        mouseLeave: function(e, panel) {
+          var tb = findTextBlock(panel);
+          if (tb !== null) tb.isUnderline = false;
+        },
+        click: click,  // defined above
+        toolTip: tooltip  // shared by all HyperlinkText panels
+      }
+    );
+  }
+});
+
+    //=======================================================HyperText end
+    //
       // This is the actual HTML context menu:
       var cxElement = document.getElementById("contextMenu");
 
@@ -78,25 +317,25 @@
         hide: hideContextMenu
       });
 
+      myDiagram.nodeTemplate =
+        $(go.Node, "Auto",
+          $(go.Shape, "Ellipse", { fill: "lightskyblue" }),
+
+        );
 
       function textStyle() {
         return { font: "19pt  Segoe UI,sans-serif", stroke: "white" };
       }
 
-      // This converter is used by the Picture.
-      function findHeadShot(key) {
-        if (key < 0 || key > 16) return "images/HSnopic.jpg"; // There are only 16 images on the server
-        return "images/HS" + key + ".jpg"
-      }
-
       // two different node templates, one for each sex,
       // named by the category value in the node data object
+
       myDiagram.nodeTemplateMap.add("M",  // male
         $(go.Node, "Auto",
             $(go.Shape, "Rectangle",
-              { name: "SHAPE", fill: "#333333", stroke: 'white', strokeWidth: 3.5,
+              { name: "SHAPE", fill: "#064666", stroke: 'white', strokeWidth: 3.5,
               // set the port properties:
-              portId: "", fromLinkable: true, toLinkable: true, cursor: "pointer", contextMenu: myContextMenu }),
+              portId: "", fromLinkable: false, toLinkable: false, cursor: "pointer", contextMenu: myContextMenu }),
           $(go.Panel, "Horizontal",
             $(go.Picture,
               {
@@ -104,7 +343,8 @@
                 desiredSize: new go.Size(70, 70),
                 margin: 1.5,
               },
-              new go.Binding("source", "key", findHeadShot)),
+              new go.Binding("source", "img")),
+            { click: function(e, obj) { viewProfile() } },
             // define the panel where the text will appear
             $(go.Panel, "Table",
               {
@@ -114,15 +354,19 @@
                 defaultAlignment: go.Spot.Left
               },
               $(go.RowColumnDefinition, { column: 2, width: 4 }),
-              $(go.TextBlock, textStyle(),  // the name
+             /* $(go.TextBlock,"Invite to Pidhi" ,textStyle(),  // the name
                 {
                   row: 0, column: 0, columnSpan: 5,
                   font: "12pt Segoe UI,sans-serif",
                   editable: true, isMultiline: false,
                   minSize: new go.Size(10, 16)
                 },
-                new go.Binding("text", "name").makeTwoWay()),
-              $(go.TextBlock, "Title: ", textStyle(),
+                new go.Binding("text", 'Invite')),*/
+              $("HyperlinkText",
+              function(node) { return "#"; },
+              function(node) { return "Invite To Pidhi"; },
+              {row: 0, column: 0, columnSpan: 5,stroke: "white",font: "12pt sans-serif", margin:5, minSize: new go.Size(10, 16)}),
+              $(go.TextBlock, "", textStyle(),
                 { row: 1, column: 0 }),
               $(go.TextBlock, textStyle(),
                 {
@@ -131,36 +375,25 @@
                   minSize: new go.Size(10, 14),
                   margin: new go.Margin(0, 0, 0, 3)
                 },
-                new go.Binding("text", "title").makeTwoWay()),
-              $(go.TextBlock, textStyle(),
-                { row: 2, column: 0 },
-                new go.Binding("text", "key", function(v) { return "ID: " + v; })),
-              $(go.TextBlock, textStyle(),
-                { name: "boss", row: 2, column: 3, }, // we include a name so we can access this TextBlock when deleting Nodes/Links
-                new go.Binding("text", "parent", function(v) { return "Boss: " + v; })),
-              $(go.TextBlock, textStyle(),  // the comments
-                {
-                  row: 3, column: 0, columnSpan: 5,
-                  font: "italic 9pt sans-serif",
-                  wrap: go.TextBlock.WrapFit,
-                  editable: true,  // by default newlines are allowed
-                  minSize: new go.Size(10, 14)
-                },
-                new go.Binding("text", "comments").makeTwoWay())
+                new go.Binding("text", "fname").makeTwoWay())
             )  // end Table Panel
           ), // end Horizontal Panel
 
           $(go.TextBlock,
             { textAlign: "center", maxSize: new go.Size(80, NaN) },
-            new go.Binding("text", "n"))
+            new go.Binding("text", "n")),
+          $("TreeExpanderButton",
+        { alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top },
+        { visible: true })
+
         ));
 
- myDiagram.nodeTemplateMap.add("F",  // male
+       myDiagram.nodeTemplateMap.add("F",  // male
         $(go.Node, "Auto",
             $(go.Shape, "Rectangle",
-              { name: "SHAPE", fill: "#333333", stroke: 'white', strokeWidth: 3.5,
+              { name: "SHAPE", fill: "#c36cae", stroke: 'white', strokeWidth: 3.5,
               // set the port properties:
-              portId: "", fromLinkable: true, toLinkable: true, cursor: "pointer", contextMenu: myContextMenu  }),
+              portId: "", fromLinkable: false, toLinkable: false, cursor: "pointer", contextMenu: myContextMenu }),
           $(go.Panel, "Horizontal",
             $(go.Picture,
               {
@@ -168,7 +401,8 @@
                 desiredSize: new go.Size(70, 70),
                 margin: 1.5,
               },
-              new go.Binding("source", "key", findHeadShot)),
+              new go.Binding("source", "img")),
+            { click: function(e, obj) { viewProfile() } },
             // define the panel where the text will appear
             $(go.Panel, "Table",
               {
@@ -178,15 +412,19 @@
                 defaultAlignment: go.Spot.Left
               },
               $(go.RowColumnDefinition, { column: 2, width: 4 }),
-              $(go.TextBlock, textStyle(),  // the name
+             /* $(go.TextBlock,"Invite to Pidhi" ,textStyle(),  // the name
                 {
                   row: 0, column: 0, columnSpan: 5,
                   font: "12pt Segoe UI,sans-serif",
                   editable: true, isMultiline: false,
                   minSize: new go.Size(10, 16)
                 },
-                new go.Binding("text", "name").makeTwoWay()),
-              $(go.TextBlock, "Title: ", textStyle(),
+                new go.Binding("text", 'Invite')),*/
+              $("HyperlinkText",
+              function(node) { return "#"; },
+              function(node) { return "Invite To Pidhi"; },
+              {row: 0, column: 0, columnSpan: 5,stroke: "white",font: "12pt sans-serif", margin:5, minSize: new go.Size(10, 16)}),
+              $(go.TextBlock, "", textStyle(),
                 { row: 1, column: 0 }),
               $(go.TextBlock, textStyle(),
                 {
@@ -195,30 +433,18 @@
                   minSize: new go.Size(10, 14),
                   margin: new go.Margin(0, 0, 0, 3)
                 },
-                new go.Binding("text", "title").makeTwoWay()),
-              $(go.TextBlock, textStyle(),
-                { row: 2, column: 0 },
-                new go.Binding("text", "key", function(v) { return "ID: " + v; })),
-              $(go.TextBlock, textStyle(),
-                { name: "boss", row: 2, column: 3, }, // we include a name so we can access this TextBlock when deleting Nodes/Links
-                new go.Binding("text", "parent", function(v) { return "Boss: " + v; })),
-              $(go.TextBlock, textStyle(),  // the comments
-                {
-                  row: 3, column: 0, columnSpan: 5,
-                  font: "italic 9pt sans-serif",
-                  wrap: go.TextBlock.WrapFit,
-                  editable: true,  // by default newlines are allowed
-                  minSize: new go.Size(10, 14)
-                },
-                new go.Binding("text", "comments").makeTwoWay())
+                new go.Binding("text", "fname").makeTwoWay())
             )  // end Table Panel
           ), // end Horizontal Panel
 
-           $(go.TextBlock, textStyle(),
-                { row: 2, column: 0 , font: "italic 12pt sans-serif"},
-                new go.Binding("text", "key", function(v) { return "Name: " + n; }))
-        ));
+          $(go.TextBlock,
+            { textAlign: "center", maxSize: new go.Size(80, NaN) },
+            new go.Binding("text", "n")),
+          $("TreeExpanderButton",
+        { alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top },
+        { visible: true })
 
+        ));
        myDiagram.contextMenu = myContextMenu;
           // We don't want the div acting as a context menu to have a (browser) context menu!
       cxElement.addEventListener("contextmenu", function(e) {
@@ -248,15 +474,22 @@
             elt.style.display = "none";
           }
         }
-           function changeColor() {
-              
-           }
-        
-        maybeShowItem(document.getElementById("Father"),  cmd.canCopySelection());
-        maybeShowItem(document.getElementById("Mother"), cmd.canCopySelection());
-        maybeShowItem(document.getElementById("Sister"), cmd.canPasteSelection(diagram.toolManager.contextMenuTool.mouseDownPoint));
+              var model = diagram.model;
+      var dataObj = "";
+      var nodeDataArray = model.nodeDataArray;
+      diagram.selection.each(function(node) {
+        dataObj = node.data
+      })
+      console.log(dataObj.f);
+        if(dataObj.f != '') {maybeShowItem(document.getElementById("Father"));}
+        else{ maybeShowItem(document.getElementById("Father"),  cmd.canCopySelection()); }
+        if(dataObj.m != '') { maybeShowItem(document.getElementById("Mother")); }
+        else{ maybeShowItem(document.getElementById("Mother"), cmd.canCopySelection());}
+        maybeShowItem(document.getElementById("Sister"), cmd.canCopySelection());
         maybeShowItem(document.getElementById("Brother"), cmd.canDeleteSelection());
-        maybeShowItem(document.getElementById("Daughter"), obj !== null);
+        maybeShowItem(document.getElementById("Son"), cmd.canDeleteSelection());
+        maybeShowItem(document.getElementById("Daughter"), cmd.canDeleteSelection());
+        maybeShowItem(document.getElementById("Spouse"), cmd.canDeleteSelection());
 
         // Now show the whole context menu element
         if (hasMenuItem) {
@@ -308,32 +541,8 @@
 
 
       // n: name, s: sex, m: mother, f: father, ux: wife, vir: husband, a: attributes/markers
-      setupDiagram(myDiagram, [
-        { key: 0, n: "Aaron", s: "M", ux: 1 },
-        { key: 1, n: "Alice", s: "F"},
-        { key: 2, n: "Bob", s: "M", m: 1, f: 0, ux: 3},
-        { key: 3, n: "Barbara", s: "F"},
-        { key: 4, n: "Bill", s: "M", m: 1, f: 0, ux: 5},
-        { key: 5, n: "Brooke", s: "F" },
-        { key: 6, n: "Claire", s: "F", m: 1, f: 0 },
-        { key: 7, n: "Carol", s: "F", m: 1, f: 0},
-        { key: 8, n: "Chloe", s: "F", m: 1, f: 0, vir: 9},
-        { key: 9, n: "Chris", s: "M", a: ["B", "H"] },
-        { key: 10, n: "Ellie", s: "F", m: 3, f: 2},
-        { key: 11, n: "Dan", s: "M", m: 3, f: 2},
-        { key: 12, n: "Eli", s: "F", vir: 13},
-        { key: 13, n: "David", s: "M", m: 5, f: 4},
-        { key: 14, n: "Emma", s: "F", m: 5, f: 4},
-        { key: 15, n: "Evan", s: "M", m: 8, f: 9},
-        { key: 16, n: "Ethan", s: "M", m: 8, f: 9},
-        { key: 17, n: "Eve", s: "F", vir: 16},
-        { key: 18, n: "Emily", s: "F", m: 8, f: 9 },
-        { key: 19, n: "Fred", s: "M", m: 17, f: 16},
-        { key: 20, n: "Faith", s: "F", m: 17, f: 16},
-        { key: 21, n: "Felicia", s: "F", m: 12, f: 13},
-        { key: 22, n: "Frank", s: "M", m: 12, f: 13}
-      ],
-      );
+      setupDiagram(myDiagram,jsonData);
+      console.log("first array"+jsonData);
     }
 
 
@@ -366,7 +575,23 @@
         //});
       }
     }
-
+ //siblings order
+     GenogramLayout.getSiblingNumber = function(v) {  // static function as sort comparer
+      if (v && v.node) {
+        if (v.node.data && typeof v.node.data.sibling === "number") {
+          return v.node.data.sibling;
+        } else if (v.node.isLinkLabel) {
+          var marrlink = v.node.labeledLink;
+          if (marrlink && marrlink.fromNode && marrlink.fromNode.data && typeof marrlink.fromNode.data.sibling === "number") {
+            return marrlink.fromNode.data.sibling;
+          }
+          if (marrlink && marrlink.toNode && marrlink.toNode.data && typeof marrlink.toNode.data.sibling === "number") {
+            return marrlink.toNode.data.sibling;
+          }
+        }
+      }
+      return 999;  // at most a thousand siblings in any family
+    }
     function findMarriage(diagram, a, b) {  // A and B are node keys
       var nodeA = diagram.findNodeForKey(a);
       var nodeB = diagram.findNodeForKey(b);
@@ -688,6 +913,116 @@
     function cxcommand(event, val) {
 
       if (val === undefined) val = event.currentTarget.id;
+      var dataObj = getData()
+      switch (val) {
+        case "Father": popup(dataObj,"father","M") ; break;
+        case "Mother": popup(dataObj,"mother","F"); break;
+        case "Brother": popup(dataObj,"brother","M"); break;
+        case "Sister": popup(dataObj,"sister","F"); break;
+        case "Son": popup(dataObj,"son","M"); break;
+        case "Daughter": popup(dataObj,"daughter","F"); break;
+        case "Spouse": popupspouse(dataObj,"spouse"); break;
+      }
+      diagram.currentTool.stopTool();
+    }
+    function popup(dataObj,relation,gender){
+      $(".modal-body #id").val(dataObj.key);
+       $(".modal-body #relationtype").val(relation);
+       $(".modal-body #familyid").val(dataObj.familyid);
+       $(".modal-body #gender").val(gender);
+       $(".modal-body #rootgender").val(dataObj.s);
+       $(".modal-body #f").val(dataObj.f);
+       $(".modal-body #m").val(dataObj.m);
+       $(".modal-body #ux").val(dataObj.ux);
+       $(".modal-body #vir").val(dataObj.vir);
+      $('#response').modal('show')
+    }
+    function popupspouse(dataObj,relation){
+      $(".modal-body #id").val(dataObj.key);
+       $(".modal-body #relationtype").val(relation);
+       $(".modal-body #familyid").val(dataObj.familyid);
+       $(".modal-body #gender").val(dataObj.s);
+       $(".modal-body #f").val(dataObj.f);
+       $(".modal-body #m").val(dataObj.m);
+       $(".modal-body #ux").val(dataObj.ux);
+       $(".modal-body #vir").val(dataObj.vir);
+      $('#response').modal('show')
+    }
+    function Invite(){
+      $('#invite').modal('show')
+    }
+    function viewProfile(){
+      var profile = getData()
+      console.log(profile)
+      $('#leftModal #myModalLabel').html(profile.fname)
+      if(profile.img){
+         $('#leftModal #uimage').attr("src",profile.img);
+      }
+      else{
+        $('#leftModal #uimage').attr("src",'assets/missing.png');
+      }
+      $('#fname').html(profile.fname);
+      $('#lname').html(profile.lname);
+      $('#dob').html(profile.dob);
+      $('#email').html(profile.email);
+      $('#mobile').html(profile.mobile);
+      $('#skey').val(profile.key);
+      $('#semail').val(profile.email);
+      $("#isalive").val(profile.isalive);
+      $('#fname').editable({
+        type: 'text',
+        pk: profile.key,
+        url: '/genogram_edit',
+        title: 'Enter username'
+    });
+     $('#lname').editable({
+        type: 'text',
+        pk: profile.key,
+        url: '/genogram_edit',
+        title: 'Enter Lastname'
+    });
+    $('#oname').editable({
+        type: 'text',
+        pk: profile.key,
+        url: '/genogram_edit',
+        title: 'Enter Nickname'
+    });
+    $('#dob').editable({
+        type: "date",
+        pk: profile.key,
+        format: 'yyyy-mm-dd', 
+        url: '/genogram_edit',   
+        viewformat: 'dd/mm/yyyy',    
+        datepicker: {
+                weekStart: 1
+           }
+      });
+    $('#email').editable({
+        type: 'text',
+        pk: profile.key,
+        url: '/genogram_edit',
+        title: 'Enter Email'
+    });
+    $('#mobile').editable({
+        type: 'text',
+        pk: profile.key,
+        url: '/genogram_edit',
+        title: 'Enter Mobile'
+    });
+    $('#isalive').editable({
+        type: 'select',
+        pk: profile.key,
+        url: '/genogram_edit',
+        value: true,    
+        source: [
+              {value: true, text: 'Yes'},
+              {value: false, text: 'No'}
+           ]
+    });
+      $('#leftModal').modal('show');
+    }
+
+    function getData(){
       var diagram = myDiagram;
       var model = diagram.model;
       var dataObj = "";
@@ -695,26 +1030,12 @@
       diagram.selection.each(function(node) {
         dataObj = node.data
       })
-      console.log(dataObj) 
-      
-      switch (val) {
-        case "Father": popup(dataObj,"father") ; break;
-        case "Mother": diagram.commandHandler.copySelection(); break;
-        case "Brother": diagram.commandHandler.pasteSelection(diagram.toolManager.contextMenuTool.mouseDownPoint); break;
-        case "Sister": changeColor; break;
-      }
-      diagram.currentTool.stopTool();
+      return dataObj;
     }
-    function popup(dataObj,relation){
-      $(".modal-body #id").val(dataObj.key);
-       $(".modal-body #relationtype").val(relation);
-       $(".modal-body #familyid").val(dataObj.familyid);
-      $('#response').modal('show')
-    }
-
+ 
     // end GenogramLayout class
   </script>
-<body onload="init()">
+<body>
 <div id="sample">
   <div id="myDiagramDiv" style="background-color: #34343C; border: solid 1px black; height: 570px;"></div>
       <ul id="contextMenu" class="menu">
@@ -722,7 +1043,9 @@
         <li id="Mother" class="menu-item" onclick="cxcommand(event)">Mother</li>
         <li id="Brother" class="menu-item" onclick="cxcommand(event)">Brother</li>
         <li id="Sister" class="menu-item" onclick="cxcommand(event)">Sister</li>
+        <li id="Son" class="menu-item" onclick="cxcommand(event);">Son</li>
         <li id="Daughter" class="menu-item" onclick="cxcommand(event);">Daughter</li>
+        <li id="Spouse" class="menu-item" onclick="cxcommand(event);">Spouse</li>
         
       </ul>
 
@@ -744,13 +1067,17 @@
                     <div class="col-md-6">
                          <%= f.hidden_field :id, value:"" %>
                          <%= f.hidden_field :familyid, value:"" %>
-                         <%= f.hidden_field :pid, value:"" %>
                          <%= f.hidden_field :gender, value:"" %>
                          <%= f.hidden_field :relationtype, value:"" %>
                          <%= f.hidden_field :familyid, value:"" %>
+                         <%= f.hidden_field :f, value:"" %>
+                         <%= f.hidden_field :m, value:"" %>
+                         <%= f.hidden_field :ux, value:"" %>
+                         <%= f.hidden_field :vir, value:"" %>
+                          <%= f.hidden_field :rootgender, value:"" %>
                          
 
-                      <%= f.text_field :fname, label: "First Name",
+                      <%= f.text_field :firstname, label: "First Name",
                               placeholder: 'FirstName...',
                               class: 'form-control' %>
                       <%= f.text_field :midname, label: "Middle Name",
@@ -769,7 +1096,7 @@
                      </div>
 
                   <div class="col-md-6">
-                    <%= f.email_field :email,  label: "Email",
+                    <%= f.email_field :remail,  label: "Email",
                               placeholder: 'email' ,
                               class: 'form-control' %>
 
@@ -779,22 +1106,22 @@
 
         </div>
                   <div class="col-md-6">
-                    <%= f.phone_field :mobile, label: "Mobile No",
+                    <%= f.phone_field :rmobile, label: "Mobile No",
                             placeholder:'Mobile' ,
                             class: 'form-control' %>
                   </div>
 
                   <div class="col-md-6">
-                    <%= f.date_field :dob, label: "Date of Birth",
+                    <%= f.date_field :rdob, label: "Date of Birth",
                             placeholder: 'Date of Birth...',
                             class: 'form-control' %>
 
-                    <%= f.select :bloodgroup, [["O+", 1], ["O-", 2],["A+",3],["A-",4]], { class: "selectpicker" } %>
+                    <%= f.select :rbloodgroup, [["O+", 1], ["O-", 2],["A+",3],["A-",4]], { class: "selectpicker" } %>
                     </div>
 
                     <div class="col-md-6">
-                      <%= f.select :living, [["Alive", 1], ["Dead", 2]], { class: "selectpicker", label:"Is Living" } %>
-                      <%= f.select :kid1order, [[1, 1], [2, 2],[3, 3],[4, 4],[5, 5],[6, 6],[7, 7],[8, 8]], { class: "selectpicker",label:"Child Order" } %>
+                      <%= f.select :rliving, [["Alive", 1], ["Dead", 2]], { class: "selectpicker", label:"Is Living" } %>
+                      <%= f.select :rsibling, [[1, 1], [2, 2],[3, 3],[4, 4],[5, 5],[6, 6],[7, 7],[8, 8]], { class: "selectpicker",label:"Child Order" } %>
         </div>
         <div id="div-extraname" class="col-md-6" style="display:none">
                   <%= f.text_field :beforemarriageName, label: "Other Names Before Marriage",
@@ -812,22 +1139,194 @@
     </div>
   </div>
 </div>
-</div> 
-<div class="modal fade bd-example-modal-lg" id="viewtree">
+</div>
+  <% end %> 
+<div class="modal fade bd-example-modal-lg" id="invite">
 <div class="modal-dialog">
   <div class="modal-content">
     <div class="modal-header">
-      <h5 class="modal-title"> </h5>
+      <h5 class="modal-title"> Invite your Family Member </h5>
       <button class="close" data-dismiss="modal">&times;</button>
     </div>
     <div class="modal-body">
-
+   <input type="text" name="invite_email" class="form-control" placeholder="Email ID" >
       <div class="modal-footer">
-        <%= f.submit "Add Details", class:"btn btn-success" %>
+        <button class="btn btn-primary" data-dismiss="modal">Invite</button>
         <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
       </div>
-      <% end %>
+    
     </div>
   </div>
 </div>
 </div> 
+
+
+    <div class="modal left fade" id="leftModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel"></h4>
+        </div>
+        <div class="modal-body">
+          <div class="btn-toolbar" role="toolbar">
+                <div class="btn-group btn-group-justified" role="group">
+                <div class="btn-group" role="group">
+                  <button id="list" class="btn btn-primary" data-original-title="Refreshr"><i class="fa fa-user fa-lg" aria-hidden="true"></i><br>Profile</button>
+                </div>
+                <div class="btn-group" role="group">
+                  <button id="new" class="btn btn-primary" data-original-title="New"><i class="fa fa-plus fa-lg" aria-hidden="true"></i><br>Add</button>
+                </div>
+                <div class="btn-group" role="group">
+                  <button id="desact" class="btn btn-primary" data-original-title="Deactivate"><i class="fa fa-pencil-square-o  fa-lg" aria-hidden="true"></i><br>Edit</button>
+                </div>
+                <div class="btn-group" role="group">
+                  <button id="delete" class="btn btn-danger" data-original-title="Delete"><i class="fa fa-trash-o fa-lg" aria-hidden="true"></i><br>Delete</button>
+                </div>
+                </div>
+            </div>
+             <hr class="style8">
+             <center>
+           <img src="/assets/missing.png" id="uimage" class="img-thumbnail" data-toggle="modal" data-target="#uploadModal"><i class="fa fa-pencil-square-o  fa-lg" aria-hidden="true" width="200" height="200"></i></img></center>
+           <hr class="style8">
+              <div class="listing-tab col-md-12">
+                  <!-- Nav tabs -->
+                  <ul class="nav nav-tabs" id="myTabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#track" aria-controls="track" role="tab" data-toggle="tab">Details</a></li>
+                    <li role="presentation"><a href="#albums" aria-controls="albums" role="tab" data-toggle="tab">About</a></li>
+                  </ul>
+                
+                  <!-- Tab panes -->
+                  <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="track">
+                       <input type="hidden" name="key" id="skey" value="" />
+                       <input type="hidden" name="key" id="semail" value="" />
+                        <ul>
+                  <li>First Name<span><a href="#" id="fname"></a></span></li>
+                            <li>Last Name<span><a href="#" id="lname"></a></span></li>
+                            <li>DOB<span><a href="#" id="dob"></a></span></li>
+                            <li>Nick Name<span><a href="#" id="oname"></a></span></li>
+                            <li>Mobile No<span><a href="#" id="mobile"></a></span></li>
+                            <li>Email<span><a href="#" id="email"></a></span></li>
+                            <li>IsAlive<span><a href="#" id="isalive"></a></span></li>
+                        </ul>
+                        <div class="related-artist">
+                            <h3>Family</h3>
+                            <div class="col-md-12">
+                                <div class="col-md-4 artist-next"><img src="http://i.ytimg.com/i/vWtix2TtWGe9kffqnwdaMw/mq1.jpg" alt="" >Mother</div>
+                                <div class="col-md-4 artist-next"><img src="http://i.ytimg.com/i/U6cE7pdJPc6DU2jSrKEsdQ/mq1.jpg" alt="" >Father</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="albums">
+                    </div>
+                  </div>
+            </div>
+        </div>
+      </div><!-- modal-content -->
+    </div><!-- modal-dialog -->
+  </div><!-- modal -->
+  <!-- Image Modal -->
+<div id="uploadModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Upload Image</h4>
+      </div>
+      <div class="modal-body">
+        <!-- Form -->
+        <form method='post' action='' enctype="multipart/form-data">
+          Select file : <input type='file' name='file' id='file' class='form-control' ><br>
+          <input type="hidden" name="key" id="key" value="">
+          <img src='/assets/missing.png' width='100' height='100' style='display: inline-block;' id="preview">
+          <input type='button' class='btn btn-info' value='Upload' id='btn_upload'>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  $.fn.editable.defaults.mode = 'popup';
+  $(document).ready(function(){
+    
+  $('#btn_upload').click(function(){
+    var fd = new FormData();
+    var email = $('#semail').val();
+    var key = $('#skey').val();
+    var files = $('#file')[0].files[0];
+    fd.append('file',files);
+    fd.append('email',email);
+    fd.append('key',key);
+    console.log(fd);
+    // AJAX request
+    $.ajax({
+      url: '/genogram_upload',
+      type: 'post',
+      data: fd,
+      contentType: false,
+      processData: false,
+      success: function(response){
+        if(response != 0){
+          console.log(response[response]);
+          $('#uimage').attr('src', response["response"]);
+           $.ajax({
+                  type: 'GET',
+                  contentType: 'application/json; charset=utf-8',
+                  url: '/getGenogramData',
+                  dataType: 'json',
+                  success: function(data){
+                  jsonData = data.doc;
+                  myDiagram.div = null
+                  init()
+                  $('#uploadModal').modal('hide')
+                 }
+           })
+        }else{
+          $('#error').append("Error on File upload");
+        }
+      }
+    });
+  });
+  //Image preview
+      function readURL(input) {
+      if (input.files && input.files[0]) {
+      var reader = new FileReader();
+
+      reader.onload = function(e) {
+      $('#preview').attr('src', e.target.result);
+      }
+      reader.readAsDataURL(input.files[0]); // convert to base64 string
+      }
+      }
+
+      $("#file").change(function() {
+      readURL(this);
+      });
+      $('#uploadModal').on('hidden.bs.modal', function (e) {
+      $(this)
+        .find("#file")
+         .val('')
+         .end()
+      .find("input[type=checkbox], input[type=radio]")
+         .prop("checked", "")
+         .end()
+      .find("#preview")
+         .prop("src", "")
+         .end();
+})
+    $('#leftModal').on('hidden.bs.modal', function (e) {
+      $(this)
+        .find("input")
+         .val('')
+         .end()
+      .find("input[type=checkbox], input[type=radio]")
+         .prop("checked", "")
+         .end();
+})
+});
+
+</script>
+<script type="javascript" src="/javascripts/Buttons.js"></script>

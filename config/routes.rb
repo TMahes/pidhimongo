@@ -39,12 +39,15 @@ Rails.application.routes.draw do
 
   post 'build_profile', to: 'profile#addtoProfiles'
   post 'build_family', to: 'family#addtoFamily'
-  post 'build_genogram', to: 'family#addtoFamily'
+  post 'build_genogram', to: 'genogram#addtoGenogram'
   get 'family_tree', to: 'family#showTree'
   get 'genogram_tree', to: 'genogram#showTree'
+  post 'genogram_upload', to: 'genogram#updateImage'
+  post 'genogram_edit', to: 'genogram#edit_field'
   get 'show_tree', to: 'build_tree#showTree'
   get 'getTreeData', to: 'profile#getTreeData'
   get 'getFamilyData', to: 'family#getFamilyData'
+  get 'getGenogramData', to: 'genogram#getGenogramData'
   post 'getFamilyJsonData', to: 'family#getFamilyJsonData'
   get 'view_profile', to: 'build_tree#viewProfile'
   get 'search_path', to: 'profile#searchProfile' , :defaults => { :format => 'text/html' }

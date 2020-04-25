@@ -4,7 +4,7 @@ skip_before_action :verify_authenticity_token
 
 
 
-  def addtoFamily
+  def addtoGenogram
         @user = User.new
     @user.name = params[:fname]
     @user.email = params[:email]
@@ -27,55 +27,90 @@ skip_before_action :verify_authenticity_token
     @profile.save
 
     #Creating/Adding Family tree
-    a = (100..999).to_a.shuffle 
-    b = (1000..1999).to_a.shuffle 
-    c = (100..999).to_a.shuffle 
-    tag_value = b.pop
+    a = (10000..99999).to_a.shuffle 
+    key_value= a.pop
     @genogram = Genogram.new
     db = Mongoid::Clients.default
-    collectionfamily = db[:genogram]
-    @genogram._id = a.pop
+    @genogram._id = key_value
+    @genogram.key = key_value
     @genogram.familyid = params[:familyid]
-    @genogram.sfamilyid = params[:familyid]
+    @checkInvite = User.find_by(email:params[:email])
+    if (@checkInvite)
+    @genogram.invite = false
+    else
+    @genogram.invite = true
+    end 
     @genogram.fname = params[:fname]
     @genogram.lname = params[:flastname]
     @genogram.email = params[:email]
     @genogram.mobile = params[:mobile]
     @genogram.dob = params[:dob]
-    @genogram.gender = params[:gender]
+    if params[:relationtype] == 'spouse' && params[:gender] == 'M'
+      @genogram.s = 'F'
+    elsif params[:relationtype] == 'spouse' && params[:gender] == 'F'
+      @genogram.s = 'M'
+    else
+    @genogram.s = params[:gender]
+    end
+    @genogram.m = ''
+    @genogram.f = ''
+    @genogram.ux = []
+    @genogram.vir = []
     @genogram.avatar = params[:avatar]
     @genogram.save
     @cuser = Genogram.find_by(_id:@genogram.id.to_i)
-    Genogram.where(id: @genogram.id).add_to_set("tags" => tag_value.to_s)
-    db[:tags].insert_one('_id':tag_value,'template': 'familyGroupTag')
-     db[:genogram].update_one({'_id': @genogram.id.to_i},{'$set': {'img': @cuser.avatar.url(:thumb)}},{multi: false})
+    #update image path 
+     db[:genograms].update_one({'_id': @genogram.id.to_i},{'$set': {'img': @cuser.avatar.url(:thumb)}},{multi: false})
 
     if params[:relationtype] == 'father'
-    db[:genogram].update_one({'_id': params[:id].to_i},{'$set': {'pid': @genogram._id}},{multi: false})
+    db[:genograms].update_one({'_id': params[:id].to_i},{'$set': {'f': @genogram._id}},{multi: false})
+    if params[:m]
+      db[:genograms].update_one({'_id': params[:m].to_i},{'$set': {'vir': @genogram._id}},{multi: false})
     end
-    
+    end
     if params[:relationtype] == 'mother'
-     @spouse = Family.find_by(_id: params[:pid].to_i)
-     Family.where(id: @family.id).add_to_set("tags" => @spouse.tags)
-     db[:families].update_one({'_id': @family.id.to_i,'tags':tag_value.to_s},{'$set': {'tags.$': @spouse.tags.to_s}},{multi: false})
+    db[:genograms].update_one({'_id': params[:id].to_i},{'$set': {'m': @genogram._id}},{multi: false})
+    if params[:f]
+      db[:genograms].update_one({'_id': params[:f].to_i},{'$set': {'ux': @genogram._id}},{multi: false})
+    end
     end
     if params[:relationtype] == 'brother'
-      db[:families].update_one({'_id': @family.id.to_i},{'$set': {'pid': params[:pid]}},{multi: false})
+      db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'f': params[:f]}},{multi: false})
+      db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'m': params[:m]}},{multi: false})
     end
     if params[:relationtype] == 'sister'
-      db[:families].update_one({'_id': @family.id.to_i},{'$set': {'pid': params[:pid]}},{multi: false})
+      db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'f': params[:f]}},{multi: false})
+      db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'m': params[:m]}},{multi: false})
     end
     if params[:relationtype] == 'son'
-      db[:families].update_one({'_id': @family.id.to_i},{'$set': {'pid': params[:id]}},{multi: false})
+      if params[:rootgender] == 'M'
+      db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'f': params[:id]}},{multi: false})
+      db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'m': params[:ux]}},{multi: false})
+      end
+      if params[:rootgender] == 'F'
+      db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'f': params[:vir]}},{multi: false})
+      db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'m': params[:id]}},{multi: false})
+      end
     end
     if params[:relationtype] == 'daughter'
-      db[:families].update_one({'_id': @family.id.to_i},{'$set': {'pid': params[:id]}},{multi: false})
+      if params[:rootgender] == 'M'
+      db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'f': params[:id]}},{multi: false})
+      db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'m': params[:ux]}},{multi: false})
+      end
+      if params[:rootgender] == 'F'
+      db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'f': params[:vir]}},{multi: false})
+      db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'m': params[:id]}},{multi: false})
+      end
     end
     if params[:relationtype] == 'spouse'
-     @spouse = Family.find_by(_id: params[:id].to_i)
-     Family.where(id: @family.id).add_to_set("tags" => @spouse.tags)
-     db[:families].update_one({'_id': @family.id.to_i,'tags':tag_value.to_s},{'$set': {'tags.$': @spouse.tags.to_s}},{multi: false})
-     db[:families].update_one({'_id': @family.id.to_i},{'$set': {'sfamilyid': c.pop}},{multi: false})
+      if @genogram.s == 'M'
+     db[:genograms].update_one({'_id': params[:id].to_i},{'$addToSet': {'vir': @genogram._id.to_i}},{multi: false})
+     db[:genograms].update_one({'_id': @genogram.id.to_i},{'$addToSet': {'ux': params[:id]}},{multi: false})
+   end
+   if @genogram.s == 'F'
+    db[:genograms].update_one({'_id': params[:id].to_i},{'$addToSet': {'ux': @genogram._id}},{multi: false})
+     db[:genograms].update_one({'_id': @genogram.id.to_i},{'$addToSet': {'vir': params[:id]}},{multi: false})
+   end
     end
     respond_to do |format|
   format.js {render inline: "location.reload();" }
@@ -86,53 +121,35 @@ end
     render 'genogram_tree'
   end
 
-      def getFamilyData
+  def getGenogramData
       db = Mongoid::Clients.default
-      collection = db[:families]
-       @user_details = Profile.find_by(userid:current_user.id.to_s)
-       fathername = @user_details.father_name
+      collection = db[:genograms]
       @doc = collection.find(familyid: current_user.familyid.to_s)
-      @tags = db[:tags].find()
-      #mother = '{marriages: {spouse:{name: "ddd",class: "woman"}}'
-      #relation = 'marriages.0.children' 
-      #brother = {name:"kkk",class:"man"}
-    #collection.update_one({'name': 'Selvaraj'},{"$addToSet": {'marriages': {spouse:{name: 'dd4d',class: 'man'} }}})
-    #collection.update_one({'name': 'selvaraj'},{"$addToSet": {'marriages.0.children.2.marriages': {spouse:{name:'husband',class: 'man' }}}})
-    #collection.update_one({'name': fathername},{"$addToSet": {'marriages.0.children.0.marriages.0.children': {name:params[:fname],class: 'man',extra:{image:@cuser.avatar.url(:thumb)}}} })
-    #collection.insert_one({'name':'Selvaraj',class:"man"})
-   # jso = doc.as_json
-    #logger.debug "data=======count==========#{jso.hash['marriages'].count}"
-    #format.json  { render :json => {:moulding => @moulding, :material_costs => @material_costs }}
-    # logger.debug "data=================#{@doc}"
-    #respond_to do |format|
-     # format.html 
-     # format.json {render :json =>{:doc => @doc, :tags => @tags}}
-     render :json =>{:doc => @doc, :tags => @tags}
-   # end
+    logger.debug "data=================#{@doc}"
+    respond_to do |format|
+     format.html 
+     format.json {render :json =>{:doc => @doc}}
+   end
   end
-  def getFamilyJsonData
-      db = Mongoid::Clients.default
-      collection = db[:families]
-      @user_details = Profile.find_by(userid:current_user.id.to_s)
-      fathername = @user_details.father_name
-      @doc = collection.find(familyid: current_user.familyid.to_s)
-      @tags = db[:tags].find()
-      #mother = '{marriages: {spouse:{name: "ddd",class: "woman"}}'
-      #relation = 'marriages.0.children' 
-      #brother = {name:"kkk",class:"man"}
-    #collection.update_one({'name': 'Selvaraj'},{"$addToSet": {'marriages': {spouse:{name: 'dd4d',class: 'man'} }}})
-    #collection.update_one({'name': 'selvaraj'},{"$addToSet": {'marriages.0.children.2.marriages': {spouse:{name:'husband',class: 'man' }}}})
-    #collection.update_one({'name': fathername},{"$addToSet": {'marriages.0.children.0.marriages.0.children': {name:params[:fname],class: 'man',extra:{image:@cuser.avatar.url(:thumb)}}} })
-    #collection.insert_one({'name':'Selvaraj',class:"man"})
-   # jso = doc.as_json
-    #logger.debug "data=======count==========#{jso.hash['marriages'].count}"
-    #format.json  { render :json => {:moulding => @moulding, :material_costs => @material_costs }}
-    # logger.debug "data=================#{@doc}"
-    #respond_to do |format|
-     # format.html 
-     # format.json {render :json =>{:doc => @doc, :tags => @tags}}
-     render :json =>{:doc => @doc}
-   # end
+  def updateImage
+    db = Mongoid::Clients.default
+    avatar = params[:file]
+    key = params[:key]
+    logger.debug "==============================#{avatar}#{key}"
+    @cuser = Profile.find_by(email: params[:email])
+    @cuser.update_attributes(avatar: params[:file])
+    db[:genograms].update_one({'_id': params[:key].to_i},{'$set': {'img': @cuser.avatar.url(:thumb)}},{multi: false})
+     render json: {response: @cuser.avatar.url(:thumb)}
+  end
+    def edit_field
+    db = Mongoid::Clients.default
+    name = params[:name]
+    value = params[:value]
+    id = params[:pk]
+     @cuser = Genogram.find_by(key: params[:pk].to_i)
+     @cuser.update_attributes(name => params[:value])
+    logger.debug "==============================#{name}#{value}#{id}"
+     render json: {response: "success"}
   end
 end
 

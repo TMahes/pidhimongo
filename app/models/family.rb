@@ -1,8 +1,7 @@
 class Family
     include Mongoid::Document
 	include Mongoid::Paperclip
-    #belongs_to :user, :foreign_key => :user
-    belongs_to :user
+   
     field :_id
     field :id
     field :familyid

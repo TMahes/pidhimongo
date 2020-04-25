@@ -79,29 +79,34 @@ end
     # @profile.sib2gender = params[:sib2gender]
     # @profile.sib2order = params[:sib2order]
     # @profile.sib2married = params[:sib2married]
+    logger.debug "Profileeeeee #{@profile.id}"
     @profile.save
 
-    a = (100..999).to_a.shuffle 
-    b = (1000..1999).to_a.shuffle 
-    tag_value = b.pop
-    @family = Family.new
+    a = (1000..9999).to_a.shuffle 
+    key_value = a.pop
+    @genogram = Genogram.new
     db = Mongoid::Clients.default
-    collectionfamily = db[:family]
-    @family._id = a.pop
-    @family.familyid = a.pop.to_s
-    @family.fname = params[:fname]
-    @family.lname = params[:flastname]
-    @family.email = params[:email]
-    @family.mobile = params[:mobile]
-    @family.dob = params[:dob]
-    @family.gender = params[:gender]
-    @family.avatar = params[:avatar]
-    @family.save
-    @cuser = Family.find_by(_id:@family.id)
-    Family.where(id: @family.id).add_to_set("tags" => tag_value.to_s)
-    db[:tags].insert_one('_id':tag_value,'template': 'familyGroupTag')
-     db[:families].update_one({'_id': @family.id},{'$set': {'img': @cuser.avatar.url(:thumb)}},{multi: false})
-    db[:users].update_one({'_id': current_user.id},{'$set': {'familyid': @family.familyid.to_s }},{multi: false})
+    collectionfamily = db[:genogram]
+    @genogram._id = key_value
+    @genogram.key = key_value
+    @genogram.familyid = a.pop.to_s
+    @genogram.fname = params[:fname]
+    @genogram.lname = params[:flastname]
+    @genogram.email = params[:email]
+    @genogram.mobile = params[:mobile]
+    @genogram.dob = params[:dob]
+    @genogram.s = ''
+    @genogram.f = ''
+    @genogram.m = ''
+    @genogram.ux = []
+    @genogram.vir = []
+    @genogram.avatar = params[:avatar]
+    @genogram.save
+    logger.debug "sdfsdf==== #{@genogram.id}"
+    @cuser = Genogram.find_by(_id:@genogram.id)
+    
+    db[:genogram].update_one({'_id': @genogram.id},{'$set': {'img': @cuser.avatar.url(:thumb)}},{multi: false})
+    db[:users].update_one({'_id': current_user.id},{'$set': {'familyid': @genogram.familyid.to_s }},{multi: false})
     redirect_to '/confirm'
 
 

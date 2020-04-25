@@ -18,6 +18,7 @@
 //= require bootstrap-sprockets
 //= require_tree .
 //= require bootstrap-multiselect
+//= require bootstrap-editable
 //= require d3
 //= require dTree
 //= require go

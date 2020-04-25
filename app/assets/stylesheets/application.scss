@@ -13,9 +13,10 @@
  */
  @import "bootstrap-sprockets";
  @import "bootstrap";
+ @import "ZoomSlider.scss";
  // Variables
  @import "base/variables";
-
+ @import "bootstrap-editable";
 
  // Default styles
 @import "base/default";
