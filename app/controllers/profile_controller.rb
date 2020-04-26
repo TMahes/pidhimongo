@@ -91,21 +91,20 @@ end
     @genogram.key = key_value
     @genogram.familyid = a.pop.to_s
     @genogram.fname = params[:fname]
-    @genogram.lname = params[:flastname]
+    @genogram.lname = params[:lname]
     @genogram.email = params[:email]
     @genogram.mobile = params[:mobile]
     @genogram.dob = params[:dob]
-    @genogram.s = ''
+    @genogram.s = params[:gender]
     @genogram.f = ''
     @genogram.m = ''
     @genogram.ux = []
     @genogram.vir = []
     @genogram.avatar = params[:avatar]
     @genogram.save
-    logger.debug "sdfsdf==== #{@genogram.id}"
-    @cuser = Genogram.find_by(_id:@genogram.id)
+    @cuser = Profile.find_by(_id:@genogram.id)
     
-    db[:genogram].update_one({'_id': @genogram.id},{'$set': {'img': @cuser.avatar.url(:thumb)}},{multi: false})
+    db[:genograms].update_one({'_id': @genogram.id},{'$set': {'img': @cuser.avatar.url(:thumb)}},{multi: false})
     db[:users].update_one({'_id': current_user.id},{'$set': {'familyid': @genogram.familyid.to_s }},{multi: false})
     redirect_to '/confirm'
 
@@ -126,8 +125,7 @@ end
 
 
   def update_details
-
-    redirect_to '/family_tree'
+    redirect_to '/genogram_tree'
   end
 
   def search

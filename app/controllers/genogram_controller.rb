@@ -6,9 +6,9 @@ skip_before_action :verify_authenticity_token
 
   def addtoGenogram
         @user = User.new
-    @user.name = params[:fname]
-    @user.email = params[:email]
-    @user.mobile = params[:mobile]
+    @user.name = params[:firstname]
+    @user.email = params[:remail]
+    @user.mobile = params[:rmobile]
     @user.password = "password123"
     @user.password_confirmation = "password123"
     @user.save
@@ -18,11 +18,11 @@ skip_before_action :verify_authenticity_token
     collection = db[:pidhi_tree]
     @profile.userid = current_user.id
     @profile.regid = @user.id
-    @profile.fname = params[:fname]
+    @profile.fname = params[:firstname]
     @profile.lname = params[:flastname]
-    @profile.email = params[:email]
-    @profile.mobile = params[:mobile]
-    @profile.dob = params[:dob]
+    @profile.email = params[:remail]
+    @profile.mobile = params[:rmobile]
+    @profile.dob = params[:rdob]
     @profile.avatar = params[:avatar]
     @profile.save
 
@@ -34,23 +34,28 @@ skip_before_action :verify_authenticity_token
     @genogram._id = key_value
     @genogram.key = key_value
     @genogram.familyid = params[:familyid]
-    @checkInvite = User.find_by(email:params[:email])
+    @checkInvite = User.find_by(email:params[:remail])
     if (@checkInvite)
     @genogram.invite = false
     else
     @genogram.invite = true
     end 
-    @genogram.fname = params[:fname]
+    @genogram.fname = params[:firstname]
     @genogram.lname = params[:flastname]
-    @genogram.email = params[:email]
-    @genogram.mobile = params[:mobile]
-    @genogram.dob = params[:dob]
+    @genogram.email = params[:remail]
+    @genogram.mobile = params[:rmobile]
+    @genogram.sibling = params[:rsibling]
+    @genogram.isalive = params[:risalive]
+    @genogram.dob = params[:rdob]
     if params[:relationtype] == 'spouse' && params[:gender] == 'M'
       @genogram.s = 'F'
     elsif params[:relationtype] == 'spouse' && params[:gender] == 'F'
       @genogram.s = 'M'
     else
     @genogram.s = params[:gender]
+    end
+    if params[:isalive] == false
+      @genogram.s = 'D'
     end
     @genogram.m = ''
     @genogram.f = ''
@@ -65,13 +70,13 @@ skip_before_action :verify_authenticity_token
     if params[:relationtype] == 'father'
     db[:genograms].update_one({'_id': params[:id].to_i},{'$set': {'f': @genogram._id}},{multi: false})
     if params[:m]
-      db[:genograms].update_one({'_id': params[:m].to_i},{'$set': {'vir': @genogram._id}},{multi: false})
+      db[:genograms].update_one({'_id': params[:m].to_i},{'$addToSet': {'vir': @genogram._id}},{multi: false})
     end
     end
     if params[:relationtype] == 'mother'
     db[:genograms].update_one({'_id': params[:id].to_i},{'$set': {'m': @genogram._id}},{multi: false})
     if params[:f]
-      db[:genograms].update_one({'_id': params[:f].to_i},{'$set': {'ux': @genogram._id}},{multi: false})
+      db[:genograms].update_one({'_id': params[:f].to_i},{'$addToSet': {'ux': @genogram._id}},{multi: false})
     end
     end
     if params[:relationtype] == 'brother'
@@ -104,7 +109,7 @@ skip_before_action :verify_authenticity_token
     end
     if params[:relationtype] == 'spouse'
       if @genogram.s == 'M'
-     db[:genograms].update_one({'_id': params[:id].to_i},{'$addToSet': {'vir': @genogram._id.to_i}},{multi: false})
+     db[:genograms].update_one({'_id': params[:id].to_i},{'$addToSet': {'vir': @genogram._id}},{multi: false})
      db[:genograms].update_one({'_id': @genogram.id.to_i},{'$addToSet': {'ux': params[:id]}},{multi: false})
    end
    if @genogram.s == 'F'
@@ -148,6 +153,9 @@ end
     id = params[:pk]
      @cuser = Genogram.find_by(key: params[:pk].to_i)
      @cuser.update_attributes(name => params[:value])
+     if name == "isalive" && value == "false"
+      @cuser.update_attributes(s: "D")
+     end
     logger.debug "==============================#{name}#{value}#{id}"
      render json: {response: "success"}
   end
