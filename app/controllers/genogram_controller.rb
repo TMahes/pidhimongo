@@ -54,8 +54,14 @@ skip_before_action :verify_authenticity_token
     else
     @genogram.s = params[:gender]
     end
-    if params[:isalive] == false
-      @genogram.s = 'D'
+    if @genogram.s == 'M'
+       @genogram.fillcolor = '#064666'
+    end
+    if @genogram.s == 'F' 
+       @genogram.fillcolor = '#c36cae'
+    end
+    if params[:risalive] == 'false'
+      @genogram.fillcolor = '#c91515'
     end
     @genogram.m = ''
     @genogram.f = ''
@@ -154,7 +160,14 @@ end
      @cuser = Genogram.find_by(key: params[:pk].to_i)
      @cuser.update_attributes(name => params[:value])
      if name == "isalive" && value == "false"
-      @cuser.update_attributes(s: "D")
+      @cuser.update_attributes(fillcolor: '#c91515')
+     end
+     if name == "isalive" && value == "true"
+     if @cuser.s == 'M'
+      @cuser.update_attributes(fillcolor: '#064666')
+       elsif @cuser.s =='F'
+        @cuser.update_attributes(fillcolor: '#c36cae')
+    end
      end
     logger.debug "==============================#{name}#{value}#{id}"
      render json: {response: "success"}

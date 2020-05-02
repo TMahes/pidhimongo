@@ -20,6 +20,7 @@ class Genogram
     field :dob
     field :isalive, type: Boolean
     field :img
+    field :fillcolor, type: String
     field :sibling, type: String
     field :avatar
   has_mongoid_attached_file :avatar, styles: { medium: "300x300", thumb: "100x100" }, default_url: "/images/missing.png"
