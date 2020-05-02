@@ -202,20 +202,18 @@
                   dataType: 'json',
                   success: function(data){
                   jsonData = data.doc;
-                   console.log("first"+jsonData);
                 init();
                  }
 
                })
     });
- console.log("second"+jsonData);
     function init() {
       if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
       var $ = go.GraphObject.make;
        myDiagram =
         $(go.Diagram, "myDiagramDiv",
           {
-            initialAutoScale: go.Diagram.Uniform,
+            initialAutoScale: go.Diagram.UniformToFill,
             "undoManager.isEnabled": true,
             "allowDrop": true,
             "draggingTool.isEnabled": false,
@@ -223,6 +221,7 @@
               $(GenogramLayout, { direction: 90, layerSpacing: 30, columnSpacing: 10 }),
 
           });
+
         zoomSlider = new ZoomSlider(myDiagram);
     //=======================================================HyperText Start
     go.GraphObject.defineBuilder("HyperlinkText", function(args) {
@@ -385,20 +384,57 @@
             { textAlign: "center", maxSize: new go.Size(80, NaN) },
             new go.Binding("text", "n")),
           $("TreeExpanderButton",
-        { alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top },
-        { visible: true }),
+                new go.Binding("alignment", "alignment"),
+                new go.Binding("alignmentFocus", "alignmentFocus"),
+                { visible: true },
+                { click: expandNode },
+                { name: "treeButton" },
+            new go.Binding('visible', 'isTreeLeaf',
+               function (leaf) { return !leaf; }
+                ).ofObject()
+                ),
            //contextMenu icon
               $(go.Picture, { source: "/assets/add.png", background: "white", row: 2, column: 1, width: 20, height: 20,alignment: go.Spot.Right,contextMenu: myContextMenu }),
-               { click: function(e, obj) { contextMenu: myContextMenu } },
+               { click: expandNode },
             
         ));
-
-       myDiagram.nodeTemplateMap.add("F",  // male
+        function expandNode(e, obj) { 
+        var node = obj.part; // OBJ is this button 
+        console.log(node.diagram.model.nodeDataArray)
+         var diagram = node.diagram; 
+        
+        updateLinkFormat(diagram); 
+}
+  
+        function updateLinkFormat(diagram){
+        var model = diagram.model;
+      var nodeDataArray = model.nodeDataArray;
+      for (var i = 0; i < nodeDataArray.length; i++) {
+        var data = nodeDataArray[i];
+        var key = data.key;
+        var mother = data.m;
+        var father = data.f;
+        if (mother !== undefined && father !== undefined) {
+          var link = findMarriage(diagram, mother, father);
+          if (link === null) {
+            // or warn no known mother or no known father or no known marriage between them
+            if (window.console) window.console.log("unknown marriage: " + mother + " & " + father);
+            continue;
+          }
+          var mdata = link.data;
+           console.log(mdata.labelKeys[0]+'link value')
+          var mlabkey = mdata.labelKeys[0];
+          var cdata = { from: mlabkey, to: key };
+          myDiagram.model.removeLinkData(cdata);
+        }
+      }
+        }
+        myDiagram.nodeTemplateMap.add("F",  // Female
         $(go.Node, "Auto",
             $(go.Shape, "Rectangle",
               { name: "SHAPE", fill: "#c36cae", stroke: 'white', strokeWidth: 3.5,
               // set the port properties:
-              portId: "", fromLinkable: false, toLinkable: false, cursor: "pointer"}),
+              portId: "", fromLinkable: false, toLinkable: false, cursor: "pointer" }),
           $(go.Panel, "Horizontal",
             $(go.Picture,
               {
@@ -417,14 +453,6 @@
                 defaultAlignment: go.Spot.Left
               },
               $(go.RowColumnDefinition, { column: 2, width: 4 }),
-             /* $(go.TextBlock,"Invite to Pidhi" ,textStyle(),  // the name
-                {
-                  row: 0, column: 0, columnSpan: 5,
-                  font: "12pt Segoe UI,sans-serif",
-                  editable: true, isMultiline: false,
-                  minSize: new go.Size(10, 16)
-                },
-                new go.Binding("text", 'Invite')),*/
               $("HyperlinkText",
               function(node) { return "#"; },
               function(node) { return "Invite To Pidhi"; },
@@ -438,19 +466,31 @@
                   minSize: new go.Size(10, 14),
                   margin: new go.Margin(0, 0, 0, 3)
                 },
-                new go.Binding("text", "fname").makeTwoWay())
+                new go.Binding("text", "fname").makeTwoWay()),
+                //new go.Binding("text", "lname").makeTwoWay()),
             )  // end Table Panel
           ), // end Horizontal Panel
-
           $(go.TextBlock,
             { textAlign: "center", maxSize: new go.Size(80, NaN) },
             new go.Binding("text", "n")),
           $("TreeExpanderButton",
-        { alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top },
-        { visible: true })
-
+                new go.Binding("alignment", "alignment"),
+                new go.Binding("alignmentFocus", "alignmentFocus"),
+                { visible: true },
+                { click: expandNode },
+                { name: "treeButton" },
+            new go.Binding('visible', 'isTreeLeaf',
+               function (leaf) { return leaf; }
+                ).ofObject()
+                ),
+           //contextMenu icon
+              $(go.Picture, { source: "/assets/add.png", background: "white", row: 2, column: 1, width: 20, height: 20,alignment: go.Spot.Right,contextMenu: myContextMenu }),
+               { click: function(e, obj) { contextMenu: myContextMenu } },
+            
         ));
-             myDiagram.nodeTemplateMap.add("D",  // male
+        
+
+             myDiagram.nodeTemplateMap.add("D",  // Dead
         $(go.Node, "Auto",
             $(go.Shape, "Rectangle",
               { name: "SHAPE", fill: "#c91515", stroke: 'white', strokeWidth: 3.5,
@@ -474,15 +514,6 @@
                 defaultAlignment: go.Spot.Left
               },
               $(go.RowColumnDefinition, { column: 2, width: 4 }),
-             /* $(go.TextBlock,"Invite to Pidhi" ,textStyle(),  // the name
-                {
-                  row: 0, column: 0, columnSpan: 5,
-                  font: "12pt Segoe UI,sans-serif",
-                  editable: true, isMultiline: false,
-                  minSize: new go.Size(10, 16)
-                },
-                new go.Binding("text", 'Invite')),*/
-            { click: function(e, obj) { viewProfile() } },
               $(go.TextBlock, "", textStyle(),
                 { row: 1, column: 0 }),
               $(go.TextBlock, textStyle(),
@@ -501,15 +532,11 @@
             { textAlign: "center", maxSize: new go.Size(80, NaN) },
             new go.Binding("text", "n")),
           $("TreeExpanderButton",
-        { alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top },
-        { visible: true }),
+                { alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top },
+                { visible: true }),
            //contextMenu icon
-              $(go.Picture, { source: "/assets/add.png", row: 2, column: 1, width: 20, height: 20,alignment: go.Spot.Right,contextMenu: myContextMenu }),
-               { click: function(e, obj) { contextMenu: myContextMenu } },
-                          //contextMenu icon
-              $(go.Picture, { source: "/assets/add.png", background: "white", row: 2, column: 1, width: 20, height: 20,alignment: go.Spot.Right,contextMenu: myContextMenu }),
-               { click: function(e, obj) { contextMenu: myContextMenu } },
-            
+          $(go.Picture, { source: "/assets/add.png", row: 2, column: 1, width: 20, height: 20,alignment: go.Spot.Right,contextMenu: myContextMenu }),
+           { click: function(e, obj) { contextMenu: myContextMenu } },
         ));
        myDiagram.contextMenu = myContextMenu;
           // We don't want the div acting as a context menu to have a (browser) context menu!
@@ -546,7 +573,6 @@
       diagram.selection.each(function(node) {
         dataObj = node.data
       })
-      console.log(dataObj.f);
         if(dataObj.f != '') {maybeShowItem(document.getElementById("Father"));}
         else{ maybeShowItem(document.getElementById("Father"),  cmd.canCopySelection()); }
         if(dataObj.m != '') { maybeShowItem(document.getElementById("Mother")); }
@@ -586,14 +612,14 @@
 
       // the representation of each label node -- nothing shows on a Marriage Link
       myDiagram.nodeTemplateMap.add("LinkLabel",
-        $(go.Node, { selectable: false, width: 1, height: 1, fromEndSegmentLength: 20 }));
+        $(go.Node, { selectable: true, width: 1, height: 1, fromEndSegmentLength: 20 }));
 
 
       myDiagram.linkTemplate =  // for parent-child relationships
         $(go.Link,
           {
             routing: go.Link.Orthogonal, corner: 5,
-            layerName: "Background", selectable: false,
+            layerName: "Background", selectable: true,
             fromSpot: go.Spot.Bottom, toSpot: go.Spot.Top
           },
           $(go.Shape, { stroke: "white", strokeWidth: 2 })
@@ -601,7 +627,7 @@
 
       myDiagram.linkTemplateMap.add("Marriage",  // for marriage relationships
         $(go.Link,
-          { selectable: false },
+          { selectable: true },
           $(go.Shape, { strokeWidth: 2.5, stroke: "red" /* blue */ })
         ));
 
@@ -722,6 +748,7 @@
             continue;
           }
           var mdata = link.data;
+           console.log(mdata.labelKeys[0]+'link value')
           var mlabkey = mdata.labelKeys[0];
           var cdata = { from: mlabkey, to: key };
           myDiagram.model.addLinkData(cdata);
@@ -829,6 +856,7 @@
       var it = coll.iterator;
       while (it.next()) {
         var node = it.value;
+       
         if (!(node instanceof go.Node)) continue;
         if (!node.isLayoutPositioned || !node.isVisible()) continue;
         if (nonmemberonly && node.containingGroup !== null) continue;
@@ -1070,8 +1098,8 @@
       $('#invite').modal('show')
     }
     function viewProfile(){
+
       var profile = getData()
-      console.log(profile)
       $('#leftModal #myModalLabel').html(profile.fname)
       if(profile.img){
          $('#leftModal #uimage').attr("src",profile.img);
@@ -1088,6 +1116,10 @@
       $('#semail').val(profile.email);
       $("#isalive").val(profile.isalive);
       $("#sibling").html(profile.sibling);
+      editablefunction(profile);
+      $('#leftModal').modal('show');
+    }
+     function editablefunction(profile){
       $('#fname').editable({
         type: 'text',
         pk: profile.key,
@@ -1098,7 +1130,7 @@
         if(response.status == 'error') return response.msg; //msg will be shown in editable form
     }
     });
-     $('#lname').editable({
+           $('#lname').editable({
         type: 'text',
         pk: profile.key,
         url: '/genogram_edit',
@@ -1123,7 +1155,7 @@
         pk: profile.key,
         format: 'yyyy-mm-dd', 
         url: '/genogram_edit',   
-        viewformat: 'dd/mm/yyyy',    
+        viewformat: 'yyy-mm-dd',    
         datepicker: {
                 weekStart: 1
            },
@@ -1177,14 +1209,40 @@
               {value: 3, text: '3'},
               {value: 4, text: '4'},
               {value: 5, text: '5'},
-              {value: 6, text: '6'}
+              {value: 6, text: '6'},
+              {value: 6, text: '7'},
+              {value: 6, text: '8'}
            ],
     success: function(response, newValue) {
         editableSuccess(response);
         if(response.status == 'error') return response.msg; //msg will be shown in editable form
     }
     });
-      $('#leftModal').modal('show');
+    $('#fname').editable('setValue', profile.fname)  //clear values
+        .editable('option', 'pk', profile.key)          //clear pk
+        .removeClass('editable-unsaved');  
+    $('#lname').editable('setValue', profile.lname)  //clear values
+        .editable('option', 'pk', profile.key)          //clear pk
+        .removeClass('editable-unsaved'); 
+    $('#oname').editable('setValue', profile.oname)  //clear values
+        .editable('option', 'pk', profile.key)          //clear pk
+        .removeClass('editable-unsaved'); 
+
+    $('#dob').editable('setValue', Date.parse("yyyy-mm-dd",profile.dob))  //clear values
+        .editable('option', 'pk', profile.key)          //clear pk
+        .removeClass('editable-unsaved'); 
+    $('#email').editable('setValue', profile.email)  //clear values
+        .editable('option', 'pk', profile.key)          //clear pk
+        .removeClass('editable-unsaved'); 
+    $('#mobile').editable('setValue', profile.mobile)  //clear values
+        .editable('option', 'pk', profile.key)          //clear pk
+        .removeClass('editable-unsaved'); 
+    $('#isalive').editable('setValue', profile.isalive)  //clear values
+        .editable('option', 'pk', profile.key)          //clear pk
+        .removeClass('editable-unsaved'); 
+    $('#sibling').editable('setValue', profile.sibling)  //clear values
+        .editable('option', 'pk', profile.key)          //clear pk
+        .removeClass('editable-unsaved'); 
     }
 
     function getData(){
@@ -1209,6 +1267,7 @@
                   success: function(data){
                   jsonData = data.doc;
                   myDiagram.div = null;
+                   zoomSlider = null;
                   init();
                  }
            })
@@ -1302,7 +1361,7 @@
                     </div>
 
                     <div class="col-md-6">
-                      <%= f.select :risalive, [["Alive", true], ["Dead", false]], { class: "selectpicker", label:"Is Living" } %>
+                      <%= f.select :risalive, [["Yes", true], ["No", false]], { class: "selectpicker", label:"Is Living" } %>
                       <%= f.select :rsibling, [["", ""],[1, 1], [2, 2],[3, 3],[4, 4],[5, 5],[6, 6],[7, 7],[8, 8]], { class: "selectpicker",label:"Child Order" } %>
         </div>
         <div id="div-extraname" class="col-md-6" style="display:none">
@@ -1443,7 +1502,6 @@
     fd.append('file',files);
     fd.append('email',email);
     fd.append('key',key);
-    console.log(fd);
     // AJAX request
     $.ajax({
       url: '/genogram_upload',
@@ -1503,6 +1561,9 @@
     $('#leftModal').on('hidden.bs.modal', function (e) {
       $(this)
         .find("input")
+         .val('')
+         .end()
+        .find("hidden")
          .val('')
          .end()
       .find("input[type=checkbox], input[type=radio]")

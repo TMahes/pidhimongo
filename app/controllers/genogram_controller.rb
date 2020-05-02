@@ -88,21 +88,21 @@ skip_before_action :verify_authenticity_token
       db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'m': params[:m]}},{multi: false})
     end
     if params[:relationtype] == 'son'
-      if params[:rootgender] == 'M'
+      if params[:ux] != ''
       db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'f': params[:id]}},{multi: false})
       db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'m': params[:ux]}},{multi: false})
       end
-      if params[:rootgender] == 'F'
+      if params[:vir] != ''
       db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'f': params[:vir]}},{multi: false})
       db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'m': params[:id]}},{multi: false})
       end
     end
     if params[:relationtype] == 'daughter'
-      if params[:rootgender] == 'M'
+      if params[:ux] != ''
       db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'f': params[:id]}},{multi: false})
       db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'m': params[:ux]}},{multi: false})
       end
-      if params[:rootgender] == 'F'
+      if params[:vir] != ''
       db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'f': params[:vir]}},{multi: false})
       db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'m': params[:id]}},{multi: false})
       end
