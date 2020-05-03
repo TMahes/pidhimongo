@@ -221,8 +221,11 @@
               $(GenogramLayout, { direction: 90, layerSpacing: 30, columnSpacing: 10 }),
 
           });
-
-        zoomSlider = new ZoomSlider(myDiagram);
+        zoomSlider = new ZoomSlider(myDiagram,
+          {
+            alignment: go.Spot.TopRight, alignmentFocus: go.Spot.TopRight,
+            size: 250, buttonSize: 50, orientation: 'horizontal', opacity: 1
+          });
     //=======================================================HyperText Start
     go.GraphObject.defineBuilder("HyperlinkText", function(args) {
   // the URL is required as the first argument, either a string or a side-effect-free function returning a string
@@ -344,7 +347,7 @@
                 margin: 1.5,
               },
               new go.Binding("source", "img")),
-            { click: function(e, obj) { viewProfile() } },
+            { click: function(e, obj) { viewProfile();zoomSlider.remove() } },
             // define the panel where the text will appear
             $(go.Panel, "Table",
               {
@@ -588,6 +591,7 @@
 
       // n: name, s: sex, m: mother, f: father, ux: wife, vir: husband, a: attributes/markers
       setupDiagram(myDiagram,jsonData);
+
     }
 
 
@@ -1221,7 +1225,6 @@
                   success: function(data){
                   jsonData = data.doc;
                   myDiagram.div = null;
-                   zoomSlider = null;
                   init();
                  }
            })
@@ -1231,8 +1234,8 @@
  }
   </script>
 <body>
-<div id="sample">
-  <div id="myDiagramDiv" style="background-color: #34343C; border: solid 1px black; height: 570px;"></div>
+<div id="sample" style="position: relative;">
+  <div id="myDiagramDiv" style="background-color: #34343C; border: solid 1px black; height: 570px;"></div></div>
       <ul id="contextMenu" class="menu">
         <li id="Father" class="menu-item" onclick="cxcommand(event)">Father</li>
         <li id="Mother" class="menu-item" onclick="cxcommand(event)">Mother</li>
@@ -1475,6 +1478,7 @@
                   success: function(data){
                   jsonData = data.doc;
                   myDiagram.div = null
+                  $('.zoomSlider').html('');
                   init()
                   $('#uploadModal').modal('hide')
                  }
@@ -1523,6 +1527,8 @@
       .find("input[type=checkbox], input[type=radio]")
          .prop("checked", "")
          .end();
+        myDiagram.div = null
+        init()
 })
 });
 
