@@ -27,12 +27,14 @@ skip_before_action :verify_authenticity_token
     @profile.save
 
     #Creating/Adding Family tree
-    a = (10000..99999).to_a.shuffle 
-    key_value= a.pop
+    f = (10000..99999).to_a.shuffle 
+    m = (100000..999999).to_a.shuffle 
+    fkey_value= f.pop
+    mkey_value= m.pop
     @genogram = Genogram.new
     db = Mongoid::Clients.default
-    @genogram._id = key_value
-    @genogram.key = key_value
+    @genogram._id = fkey_value
+    @genogram.key = fkey_value
     @genogram.familyid = params[:familyid]
     @checkInvite = User.find_by(email:params[:remail])
     if (@checkInvite)
@@ -78,11 +80,19 @@ skip_before_action :verify_authenticity_token
     if params[:m]
       db[:genograms].update_one({'_id': params[:m].to_i},{'$addToSet': {'vir': @genogram._id}},{multi: false})
     end
+    if params[:m] == ''
+      db[:genograms].insert_one('_id': mkey_value.to_i ,familyid: params[:familyid] ,'key': mkey_value.to_i,'fname': 'Unknown','s': 'F','vir': [@genogram._id.to_i],'fillcolor': '#c36cae')
+      db[:genograms].update_one({'_id': params[:id].to_i},{'$set': {'m': mkey_value}},{multi: false})
+    end
     end
     if params[:relationtype] == 'mother'
     db[:genograms].update_one({'_id': params[:id].to_i},{'$set': {'m': @genogram._id}},{multi: false})
     if params[:f]
       db[:genograms].update_one({'_id': params[:f].to_i},{'$addToSet': {'ux': @genogram._id}},{multi: false})
+    end
+    if params[:f] == ''
+      db[:genograms].insert_one('_id': mkey_value.to_i ,familyid: params[:familyid] ,'key': mkey_value.to_i,'fname': 'Unknown','s': 'M','ux': [@genogram._id.to_i],'fillcolor': '#064666')
+      db[:genograms].update_one({'_id': params[:id].to_i},{'$set': {'f': mkey_value}},{multi: false})
     end
     end
     if params[:relationtype] == 'brother'
