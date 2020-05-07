@@ -102,7 +102,7 @@ end
     @genogram.vir = []
     @genogram.avatar = params[:avatar]
     @genogram.save
-    @cuser = Profile.find_by(_id:@genogram.id)
+    @cuser = Genogram.find_by(_id:@genogram.id)
     
     db[:genograms].update_one({'_id': @genogram.id},{'$set': {'img': @cuser.avatar.url(:thumb)}},{multi: false})
     db[:users].update_one({'_id': current_user.id},{'$set': {'familyid': @genogram.familyid.to_s }},{multi: false})

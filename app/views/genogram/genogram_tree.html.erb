@@ -388,28 +388,104 @@
             { textAlign: "center", maxSize: new go.Size(80, NaN) },
             new go.Binding("text", "n")),
           $("TreeExpanderButton",
-                new go.Binding("alignment", "alignment"),
-                new go.Binding("alignmentFocus", "alignmentFocus"),
-                { visible: true },
-                { click: expandNode },
-                { name: "treeButton" },
+            {
+              name: 'TREEBUTTON',
+              width: 20, height: 20,
+              alignment: go.Spot.TopRight,
+              alignmentFocus: go.Spot.Center,
+              // customize the expander behavior to
+              // create children if the node has never been expanded
+              click: function(e, obj) {  // OBJ is the Button
+                var node = obj.part;  // get the Node containing this Button
+                if (node === null) return;
+                e.handled = true;
+                expandNode(node);
+              },
+            },
             new go.Binding('visible', 'isTreeLeaf',
-               function (leaf) { return !leaf; }
-                ).ofObject()
-                ),
+               function (leaf) { return leaf; }
+                ).ofObject(),
+          ),  // end TreeExpanderButton,
            //contextMenu icon
-              $(go.Picture, { source: "/assets/add.png", background: "white", row: 2, column: 1, width: 20, height: 20,alignment: go.Spot.Right,contextMenu: myContextMenu }),
-               { click: expandNode },
-            
+              $(go.Picture, { source: "/assets/add.png", background: "white", row: 2, column: 1, width: 20, height: 20,alignment: go.Spot.Right,contextMenu: myContextMenu }),            
         ));
-        function expandNode(e, obj) { 
-        var node = obj.part; // OBJ is this button 
-        console.log(node.diagram.model.nodeDataArray)
-         var diagram = node.diagram; 
-        
-        updateLinkFormat(diagram); 
-}
-  
+
+
+
+    function expandNode(node) {
+      var diagram = node.diagram;
+      var degrees = 1;
+      diagram.startTransaction("CollapseExpandTree");
+      // this behavior is specific to this incrementalTree sample:
+      var data = node.data;
+      // this behavior is generic for most expand/collapse tree buttons:
+      console.log(data.f)
+      var parent = myDiagram.findNodeForKey(data.f);
+      if (node.isTreeExpanded) {
+        diagram.commandHandler.collapseTree(node);
+         //parent.visible = false;
+      } else {
+        diagram.commandHandler.expandTree(node);
+      }
+      if (parent.isTreeExpanded) {
+        diagram.commandHandler.collapseTree(parent);
+      } else {
+        diagram.commandHandler.expandTree(parent);
+      }
+      diagram.commitTransaction("CollapseExpandTree");
+    //  myDiagram.zoomToFit();
+    }
+
+        function createSubTree(parentdata) {
+      var numchildren = Math.floor(Math.random() * 10);
+      if (myDiagram.nodes.count <= 1) {
+        numchildren += 1;  // make sure the root node has at least one child
+      }
+      // create several node data objects and add them to the model
+      var model = myDiagram.model;
+      var parent = myDiagram.findNodeForData(parentdata);
+      console.log(parent)
+      var degrees = 1;
+      var grandparent = parent.findTreeParentNode();
+      console.log(grandparent.data)
+      while (grandparent) {
+        degrees++;
+        grandparent = grandparent.findTreeParentNode();
+      }
+
+      for (var i = 0; i < numchildren; i++) {
+        var childdata = {
+          key: model.nodeDataArray.length,
+          parent: parentdata.key,
+          rootdistance: degrees
+        };
+        // add to model.nodeDataArray and create a Node
+        model.addNodeData(childdata);
+        // position the new child node close to the parent
+        var child = myDiagram.findNodeForData(childdata);
+        child.location = parent.location;
+      }
+      return numchildren;
+    }
+
+           // Return a collection of a Node's ancestor nodes and links, including the node itself.
+  function findTreeParentChain(node) {
+    function add(n, coll) {
+      if (n === null) return;
+      coll.add(n);
+      var l = n.findTreeParentLink();
+      if (l !== null) {
+        coll.add(l);
+        add(n.findTreeParentNode(), coll);
+      }
+    }
+
+    var set = new go.Set();
+    if (node instanceof go.Node) add(node, set);
+   // console.log(set)
+    //console.log(node.data)
+    return set;
+  }
         function updateLinkFormat(diagram){
         var model = diagram.model;
       var nodeDataArray = model.nodeDataArray;
@@ -426,7 +502,6 @@
             continue;
           }
           var mdata = link.data;
-           console.log(mdata.labelKeys[0]+'link value')
           var mlabkey = mdata.labelKeys[0];
           var cdata = { from: mlabkey, to: key };
           myDiagram.model.removeLinkData(cdata);
@@ -481,15 +556,21 @@
             { textAlign: "center", maxSize: new go.Size(80, NaN) },
             new go.Binding("text", "n")),
           $("TreeExpanderButton",
-                new go.Binding("alignment", "alignment"),
-                new go.Binding("alignmentFocus", "alignmentFocus"),
-                { visible: true },
-                { click: expandNode },
-                { name: "treeButton" },
-            new go.Binding('visible', 'isTreeLeaf',
-               function (leaf) { return leaf; }
-                ).ofObject()
-                ),
+            {
+              name: 'TREEBUTTON',
+              width: 20, height: 20,
+              alignment: go.Spot.TopRight,
+              alignmentFocus: go.Spot.Center,
+              // customize the expander behavior to
+              // create children if the node has never been expanded
+              click: function(e, obj) {  // OBJ is the Button
+                var node = obj.part;  // get the Node containing this Button
+                if (node === null) return;
+                e.handled = true;
+                expandNode(node);
+              }
+            }
+          ),  // end TreeExpanderButton,
            //contextMenu icon
               $(go.Picture, { source: "/assets/add.png", background: "white", row: 2, column: 1, width: 20, height: 20,alignment: go.Spot.Right,contextMenu: myContextMenu }),
                { click: function(e, obj) { contextMenu: myContextMenu } }, 
@@ -706,7 +787,6 @@
             continue;
           }
           var mdata = link.data;
-           console.log(mdata.labelKeys[0]+'link value')
           var mlabkey = mdata.labelKeys[0];
           var cdata = { from: mlabkey, to: key };
           myDiagram.model.addLinkData(cdata);
@@ -803,7 +883,7 @@
     }
 
     // disable re-ordering of vertexes in layers for link crossing reductions
-    GenogramLayout.prototype.reduceCrossings = function() {}
+   // GenogramLayout.prototype.reduceCrossings = function() {}
 
 
     // internal method for creating LayeredDigraphNetwork where husband/wife pairs are represented
@@ -1215,7 +1295,6 @@
     }
  function editableSuccess(response){
         if(response != 0){
-          console.log(response[response]);
           $('#uimage').attr('src', response["response"]);
            $.ajax({
                   type: 'GET',
@@ -1527,7 +1606,7 @@
       .find("input[type=checkbox], input[type=radio]")
          .prop("checked", "")
          .end();
-        myDiagram.div = null
+          myDiagram.div = null
         init()
 })
 });
