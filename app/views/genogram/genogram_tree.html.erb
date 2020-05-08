@@ -339,6 +339,7 @@
               // set the port properties:
               portId: "", fromLinkable: false, toLinkable: false, cursor: "pointer" },
                new go.Binding("fill", "fillcolor")),
+               new go.Binding("visible"),
           $(go.Panel, "Horizontal",
             $(go.Picture,
               {
@@ -387,105 +388,51 @@
           $(go.TextBlock,
             { textAlign: "center", maxSize: new go.Size(80, NaN) },
             new go.Binding("text", "n")),
-          $("TreeExpanderButton",
-            {
-              name: 'TREEBUTTON',
-              width: 20, height: 20,
-              alignment: go.Spot.TopRight,
-              alignmentFocus: go.Spot.Center,
-              // customize the expander behavior to
-              // create children if the node has never been expanded
-              click: function(e, obj) {  // OBJ is the Button
-                var node = obj.part;  // get the Node containing this Button
-                if (node === null) return;
-                e.handled = true;
-                expandNode(node);
+             $("Button",  // a replacement for "TreeExpanderButton" that works for non-tree-structured graphs
+            // assume initially not visible because there are no links coming out
+            { visible: false },
+            // bind the button visibility to whether it's not a leaf node
+            new go.Binding("visible", "isTreeLeaf",
+              function(leaf) { return !leaf; })
+              .ofObject(),
+            $(go.Shape,
+              {
+                name: "ButtonIcon",
+                figure: "MinusLine",
+                desiredSize: new go.Size(6, 6)
               },
-            },
-            new go.Binding('visible', 'isTreeLeaf',
-               function (leaf) { return leaf; }
-                ).ofObject(),
-          ),  // end TreeExpanderButton,
-           //contextMenu icon
+              new go.Binding("figure", "isCollapsed",  // data.isCollapsed remembers "collapsed" or "expanded"
+                function(collapsed) { return collapsed ? "PlusLine" : "MinusLine"; })),
+            {
+              click: function(e, obj) {
+                e.diagram.startTransaction();
+                var node = obj.part;
+                if (node.data.isCollapsed) {
+                  expandFrom(node, node);
+                } else {
+                  collapseFrom(node, node);
+                }
+                e.diagram.commitTransaction("toggled visibility of dependencies");
+              }
+            }),
               $(go.Picture, { source: "/assets/add.png", background: "white", row: 2, column: 1, width: 20, height: 20,alignment: go.Spot.Right,contextMenu: myContextMenu }),            
         ));
 
-
-
-    function expandNode(node) {
-      var diagram = node.diagram;
-      var degrees = 1;
-      diagram.startTransaction("CollapseExpandTree");
-      // this behavior is specific to this incrementalTree sample:
-      var data = node.data;
-      // this behavior is generic for most expand/collapse tree buttons:
-      console.log(data.f)
-      var parent = myDiagram.findNodeForKey(data.f);
-      if (node.isTreeExpanded) {
-        diagram.commandHandler.collapseTree(node);
-         //parent.visible = false;
-      } else {
-        diagram.commandHandler.expandTree(node);
-      }
-      if (parent.isTreeExpanded) {
-        diagram.commandHandler.collapseTree(parent);
-      } else {
-        diagram.commandHandler.expandTree(parent);
-      }
-      diagram.commitTransaction("CollapseExpandTree");
-    //  myDiagram.zoomToFit();
-    }
-
-        function createSubTree(parentdata) {
-      var numchildren = Math.floor(Math.random() * 10);
-      if (myDiagram.nodes.count <= 1) {
-        numchildren += 1;  // make sure the root node has at least one child
-      }
-      // create several node data objects and add them to the model
-      var model = myDiagram.model;
-      var parent = myDiagram.findNodeForData(parentdata);
-      console.log(parent)
-      var degrees = 1;
-      var grandparent = parent.findTreeParentNode();
-      console.log(grandparent.data)
-      while (grandparent) {
-        degrees++;
-        grandparent = grandparent.findTreeParentNode();
+      function collapseFrom(node, start) {
+        
+        if (node.data.isCollapsed) return;
+        node.diagram.model.setDataProperty(node.data, "isCollapsed", true);
+        if (node != start) node.diagram.model.setDataProperty(node.data, "visible", false);
+        node.findTreeChildrenLinks().each(collapseFrom);
       }
 
-      for (var i = 0; i < numchildren; i++) {
-        var childdata = {
-          key: model.nodeDataArray.length,
-          parent: parentdata.key,
-          rootdistance: degrees
-        };
-        // add to model.nodeDataArray and create a Node
-        model.addNodeData(childdata);
-        // position the new child node close to the parent
-        var child = myDiagram.findNodeForData(childdata);
-        child.location = parent.location;
+      function expandFrom(node, start) {
+        if (!node.data.isCollapsed) return;
+        node.diagram.model.setDataProperty(node.data, "isCollapsed", false);
+        if (node != start) node.diagram.model.setDataProperty(node.data, "visible", true);
+        node.findTreeChildrenLinks().each(expandFrom);
       }
-      return numchildren;
-    }
 
-           // Return a collection of a Node's ancestor nodes and links, including the node itself.
-  function findTreeParentChain(node) {
-    function add(n, coll) {
-      if (n === null) return;
-      coll.add(n);
-      var l = n.findTreeParentLink();
-      if (l !== null) {
-        coll.add(l);
-        add(n.findTreeParentNode(), coll);
-      }
-    }
-
-    var set = new go.Set();
-    if (node instanceof go.Node) add(node, set);
-   // console.log(set)
-    //console.log(node.data)
-    return set;
-  }
         function updateLinkFormat(diagram){
         var model = diagram.model;
       var nodeDataArray = model.nodeDataArray;
@@ -515,7 +462,8 @@
               { name: "SHAPE", stroke: 'white', strokeWidth: 3.5,
               // set the port properties:
               portId: "", fromLinkable: false, toLinkable: false, cursor: "pointer" },
-                        new go.Binding("fill", "fillcolor")),
+                new go.Binding("fill", "fillcolor")),
+                new go.Binding("visible"),
                
           $(go.Panel, "Horizontal",
             $(go.Picture,
@@ -555,22 +503,33 @@
           $(go.TextBlock,
             { textAlign: "center", maxSize: new go.Size(80, NaN) },
             new go.Binding("text", "n")),
-          $("TreeExpanderButton",
+             $("Button",  // a replacement for "TreeExpanderButton" that works for non-tree-structured graphs
+            // assume initially not visible because there are no links coming out
+            { visible: false },
+            // bind the button visibility to whether it's not a leaf node
+            new go.Binding("visible", "isTreeLeaf",
+              function(leaf) { return leaf; })
+              .ofObject(),
+            $(go.Shape,
+              {
+                name: "ButtonIcon",
+                figure: "MinusLine",
+                desiredSize: new go.Size(6, 6)
+              },
+              new go.Binding("figure", "isCollapsed",  // data.isCollapsed remembers "collapsed" or "expanded"
+                function(collapsed) { return collapsed ? "PlusLine" : "MinusLine"; })),
             {
-              name: 'TREEBUTTON',
-              width: 20, height: 20,
-              alignment: go.Spot.TopRight,
-              alignmentFocus: go.Spot.Center,
-              // customize the expander behavior to
-              // create children if the node has never been expanded
-              click: function(e, obj) {  // OBJ is the Button
-                var node = obj.part;  // get the Node containing this Button
-                if (node === null) return;
-                e.handled = true;
-                expandNode(node);
+              click: function(e, obj) {
+                e.diagram.startTransaction();
+                var node = obj.part;
+                if (node.data.isCollapsed) {
+                  expandFrom(node, node);
+                } else {
+                  collapseFrom(node, node);
+                }
+                e.diagram.commitTransaction("toggled visibility of dependencies");
               }
-            }
-          ),  // end TreeExpanderButton,
+            }),
            //contextMenu icon
               $(go.Picture, { source: "/assets/add.png", background: "white", row: 2, column: 1, width: 20, height: 20,alignment: go.Spot.Right,contextMenu: myContextMenu }),
                { click: function(e, obj) { contextMenu: myContextMenu } }, 
@@ -609,14 +568,12 @@
       diagram.selection.each(function(node) {
         dataObj = node.data
       })
-        if(dataObj.f != '') {maybeShowItem(document.getElementById("Father"));}
+        if(dataObj.f != '' && dataObj.f == 'f') {maybeShowItem(document.getElementById("Father"));}
         else{ maybeShowItem(document.getElementById("Father"),  cmd.canCopySelection()); }
-        if(dataObj.m != '') { maybeShowItem(document.getElementById("Mother")); }
+        if(dataObj.m != '' && dataObj.f == 'm') { maybeShowItem(document.getElementById("Mother")); }
         else{ maybeShowItem(document.getElementById("Mother"), cmd.canCopySelection());}
-        if (dataObj.m == '' && dataObj.f == ''){ maybeShowItem(document.getElementById("Sister"));}
-        else{maybeShowItem(document.getElementById("Sister"), cmd.canCopySelection());}
-        if (dataObj.m == '' && dataObj.f == ''){ maybeShowItem(document.getElementById("Brother"));}
-        else{maybeShowItem(document.getElementById("Brother"), cmd.canCopySelection());}
+        maybeShowItem(document.getElementById("Sister"), cmd.canCopySelection());
+        maybeShowItem(document.getElementById("Brother"), cmd.canCopySelection());
         maybeShowItem(document.getElementById("Son"), cmd.canDeleteSelection());
         maybeShowItem(document.getElementById("Daughter"), cmd.canDeleteSelection());
         maybeShowItem(document.getElementById("Spouse"), cmd.canDeleteSelection());
@@ -789,6 +746,7 @@
           var mdata = link.data;
           var mlabkey = mdata.labelKeys[0];
           var cdata = { from: mlabkey, to: key };
+          console.log(cdata)
           myDiagram.model.addLinkData(cdata);
         }
       }
