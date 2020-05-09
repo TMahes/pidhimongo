@@ -208,7 +208,7 @@
                })
     });
     function init() {
-      if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
+     // if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
       var $ = go.GraphObject.make;
        myDiagram =
         $(go.Diagram, "myDiagramDiv",
@@ -218,7 +218,7 @@
             "allowDrop": true,
             "draggingTool.isEnabled": false,
             layout:  // use a custom layout, defined below
-              $(GenogramLayout, { direction: 90, layerSpacing: 30, columnSpacing: 10 }),
+              $(GenogramLayout, { direction: 90, layerSpacing: 90, columnSpacing: 30}),
 
           });
         zoomSlider = new ZoomSlider(myDiagram,
@@ -348,7 +348,7 @@
                 margin: 1.5,
               },
               new go.Binding("source", "img")),
-            { click: function(e, obj) { viewProfile();zoomSlider.remove() } },
+            { click: function(e, obj) { viewProfile();zoomSlider.remove();console.log(obj.part.data) } },
             // define the panel where the text will appear
             $(go.Panel, "Table",
               {
@@ -370,7 +370,7 @@
               function(node) { return "#"; },
               function(node) { return "Invite To Pidhi"; },
               {row: 0, column: 0, columnSpan: 5,stroke: "white",font: "8pt sans-serif", margin:5, minSize: new go.Size(10, 16)}),
-            { click: function(e, obj) { viewProfile() } },
+            { click: function(e, obj) { viewProfile();zoomSlider.remove(); } },
               $(go.TextBlock, "", textStyle(),
                 { row: 1, column: 0 }),
               $(go.TextBlock, textStyle(),
@@ -473,7 +473,7 @@
                 margin: 1.5,
               },
               new go.Binding("source", "img")),
-            { click: function(e, obj) { viewProfile() } },
+            { click: function(e, obj) { viewProfile();zoomSlider.remove(); } },
             // define the panel where the text will appear
             $(go.Panel, "Table",
               {
@@ -568,14 +568,24 @@
       diagram.selection.each(function(node) {
         dataObj = node.data
       })
-        if(dataObj.f != '' && dataObj.f == 'f') {maybeShowItem(document.getElementById("Father"));}
+        console.log(dataObj)
+        //father dropdown
+        if(dataObj.f != '') {maybeShowItem(document.getElementById("Father"));}
         else{ maybeShowItem(document.getElementById("Father"),  cmd.canCopySelection()); }
-        if(dataObj.m != '' && dataObj.f == 'm') { maybeShowItem(document.getElementById("Mother")); }
+        //mother dropdown
+        if(dataObj.m != '') { maybeShowItem(document.getElementById("Mother")); }
         else{ maybeShowItem(document.getElementById("Mother"), cmd.canCopySelection());}
+        //sister dropdown
         maybeShowItem(document.getElementById("Sister"), cmd.canCopySelection());
+        //brother dropdown
         maybeShowItem(document.getElementById("Brother"), cmd.canCopySelection());
-        maybeShowItem(document.getElementById("Son"), cmd.canDeleteSelection());
-        maybeShowItem(document.getElementById("Daughter"), cmd.canDeleteSelection());
+        //son dropdown
+        if(dataObj.ux.length > 1){maybeShowItem(document.getElementById("Son"));}
+        else{maybeShowItem(document.getElementById("Son"), cmd.canDeleteSelection());}
+        //daughter dropdown
+        if(dataObj.ux.length > 1 ) {maybeShowItem(document.getElementById("Daughter"));}
+        else{maybeShowItem(document.getElementById("Daughter"), cmd.canDeleteSelection());}
+        //spouse dropdown
         maybeShowItem(document.getElementById("Spouse"), cmd.canDeleteSelection());
 
         // Now show the whole context menu element
@@ -653,13 +663,13 @@
       if (node !== null) {
         diagram.select(node);
         // remove any spouse for the person under focus:
-        //node.linksConnected.each(function(l) {
-        //  if (!l.isLabeledLink) return;
-        //  l.opacity = 0;
-        //  var spouse = l.getOtherNode(node);
-        //  spouse.opacity = 0;
-        //  spouse.pickable = false;
-        //});
+        node.linksConnected.each(function(l) {
+          if (!l.isLabeledLink) return;
+          l.opacity = 0;
+          var spouse = l.getOtherNode(node);
+          spouse.opacity = 0;
+          spouse.pickable = false;
+        });
       }
     }
 
@@ -756,7 +766,7 @@
     // A custom layout that shows the two families related to a person's parents
     function GenogramLayout() {
       go.LayeredDigraphLayout.call(this);
-      this.initializeOption = go.LayeredDigraphLayout.InitDepthFirstIn;
+      this.initializeOption = go.LayeredDigraphLayout.InitDepthFirstOut;
       this.spouseSpacing = 30;  // minimum space between spouses
     }
     go.Diagram.inherit(GenogramLayout, go.LayeredDigraphLayout);
@@ -1515,7 +1525,7 @@
                   success: function(data){
                   jsonData = data.doc;
                   myDiagram.div = null
-                  $('.zoomSlider').html('');
+                  zoomSlider.remove()
                   init()
                   $('#uploadModal').modal('hide')
                  }
