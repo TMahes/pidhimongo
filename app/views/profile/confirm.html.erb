@@ -99,6 +99,7 @@ button:hover {
   <div class="col-sm-4">
 
     <% @user_details = Profile.find_by(userid:current_user.id.to_s) %>
+    <td><%= image_tag @user_details.avatar.url(:thumb) %></td>
     <%= f.hidden_field :userid, value: current_user.id %>
     <%= f.text_field :fname, label: "First name",
   	           value:@user_details.fname ,

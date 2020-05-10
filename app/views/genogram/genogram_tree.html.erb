@@ -217,6 +217,13 @@
             "undoManager.isEnabled": true,
             "allowDrop": true,
             "draggingTool.isEnabled": false,
+            // when a node is selected, draw a big yellow circle behind it
+            nodeSelectionAdornmentTemplate:
+              $(go.Adornment, "Auto",
+                { layerName: "Grid" },  // the predefined layer that is behind everything else
+                $(go.Shape, "Rectangle", { fill: "green", stroke: null }),
+                $(go.Placeholder, { margin: 4 })
+              ),
             layout:  // use a custom layout, defined below
               $(GenogramLayout, { direction: 90, layerSpacing: 90, columnSpacing: 30}),
 
@@ -226,7 +233,7 @@
             alignment: go.Spot.TopRight, alignmentFocus: go.Spot.TopRight,
             size: 250, buttonSize: 50, orientation: 'horizontal', opacity: 1
           });
-    //=======================================================HyperText Start
+    //================HyperText Start
     go.GraphObject.defineBuilder("HyperlinkText", function(args) {
   // the URL is required as the first argument, either a string or a side-effect-free function returning a string
   var url = go.GraphObject.takeBuilderArgument(args, undefined, function(x) { return typeof x === "string" || typeof x === "function"; });
@@ -433,31 +440,9 @@
         node.findTreeChildrenLinks().each(expandFrom);
       }
 
-        function updateLinkFormat(diagram){
-        var model = diagram.model;
-      var nodeDataArray = model.nodeDataArray;
-      for (var i = 0; i < nodeDataArray.length; i++) {
-        var data = nodeDataArray[i];
-        var key = data.key;
-        var mother = data.m;
-        var father = data.f;
-        if (mother !== undefined && father !== undefined) {
-          var link = findMarriage(diagram, mother, father);
-          if (link === null) {
-            // or warn no known mother or no known father or no known marriage between them
-            if (window.console) window.console.log("unknown marriage: " + mother + " & " + father);
-            continue;
-          }
-          var mdata = link.data;
-          var mlabkey = mdata.labelKeys[0];
-          var cdata = { from: mlabkey, to: key };
-          myDiagram.model.removeLinkData(cdata);
-        }
-      }
-        }
+
         myDiagram.nodeTemplateMap.add("F",  // Female
         $(go.Node, "Auto",
-
             $(go.Shape, "Rectangle",
               { name: "SHAPE", stroke: 'white', strokeWidth: 3.5,
               // set the port properties:
@@ -623,7 +608,7 @@
       myDiagram.linkTemplate =  // for parent-child relationships
         $(go.Link,
           {
-            routing: go.Link.Orthogonal, corner: 5,
+            routing: go.Link.Orthogonal, corner: 5,corner: go.Link.End,
             layerName: "Background", selectable: true,
             fromSpot: go.Spot.Bottom, toSpot: go.Spot.Top
           },
@@ -767,6 +752,8 @@
     function GenogramLayout() {
       go.LayeredDigraphLayout.call(this);
       this.initializeOption = go.LayeredDigraphLayout.InitDepthFirstOut;
+      this.linkSpacing = 20
+      this.layerSpacing = 90
       this.spouseSpacing = 30;  // minimum space between spouses
     }
     go.Diagram.inherit(GenogramLayout, go.LayeredDigraphLayout);
@@ -988,6 +975,7 @@
       // from now on, the LayeredDigraphLayout will think that the Node is bigger than it really is
       // (other than the ones that are the widest or tallest in their respective layer).
     };
+
 
     GenogramLayout.prototype.commitNodes = function() {
       go.LayeredDigraphLayout.prototype.commitNodes.call(this);
@@ -1261,6 +1249,7 @@
       })
       return dataObj;
     }
+
  function editableSuccess(response){
         if(response != 0){
           $('#uimage').attr('src', response["response"]);
@@ -1272,7 +1261,6 @@
                   success: function(data){
                   jsonData = data.doc;
                   myDiagram.div = null;
-                  init();
                  }
            })
         }else{
@@ -1423,7 +1411,7 @@
                   <button id="new" class="btn btn-primary" data-original-title="New"><i class="fa fa-plus fa-lg" aria-hidden="true"></i><br>Add</button>
                 </div>
                 <div class="btn-group" role="group">
-                  <button id="desact" class="btn btn-primary" data-original-title="Deactivate"><i class="fa fa-pencil-square-o  fa-lg" aria-hidden="true"></i><br>Edit</button>
+                  <button id="desact" class="btn btn-primary" data-original-title="Deactivate"><i class="fa fa fa-comments  fa-lg" aria-hidden="true"></i><br>Chat</button>
                 </div>
                 <div class="btn-group" role="group">
                   <button id="delete" class="btn btn-danger" data-original-title="Delete"><i class="fa fa-trash-o fa-lg" aria-hidden="true"></i><br>Delete</button>
@@ -1525,7 +1513,6 @@
                   success: function(data){
                   jsonData = data.doc;
                   myDiagram.div = null
-                  zoomSlider.remove()
                   init()
                   $('#uploadModal').modal('hide')
                  }

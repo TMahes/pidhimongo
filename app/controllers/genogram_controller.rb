@@ -126,24 +126,48 @@ skip_before_action :verify_authenticity_token
      end
     end
     if params[:relationtype] == 'son'
-      if params[:ux] != ''
-      db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'f': params[:id]}},{multi: false})
-      db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'m': params[:ux]}},{multi: false})
-      end
-      if params[:vir] != ''
-      db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'f': params[:vir]}},{multi: false})
-      db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'m': params[:id]}},{multi: false})
-      end
+      if params[:rootgender] == 'M'
+        db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'f': params[:id]}},{multi: false})
+          if params[:ux] != ''
+          db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'m': params[:ux]}},{multi: false})
+          else
+          db[:genograms].insert_one('_id': mkey_value.to_i ,familyid: params[:familyid] ,'key': mkey_value.to_i,'fname': 'Unknown','f':'','m':'','s': 'F','vir': [params[:id].to_i],'ux': [],'fillcolor': '#c36cae')
+          db[:genograms].update_one({'_id': params[:id].to_i},{'$addToSet': {'ux': mkey_value}},{multi: false})
+          db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'m': mkey_value}},{multi: false})
+          end
+       end
+      if params[:rootgender] == 'F'
+        db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'m': params[:id]}},{multi: false})
+          if params[:vir] != ''
+          db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'f': params[:vir]}},{multi: false})
+          else
+          db[:genograms].insert_one('_id': mkey_value.to_i ,familyid: params[:familyid] ,'key': mkey_value.to_i,'fname': 'Unknown','f':'','m':'','s': 'M','ux': [params[:id].to_i],'vir': [],'fillcolor': '#064666')
+          db[:genograms].update_one({'_id': params[:id].to_i},{'$addToSet': {'vir': mkey_value}},{multi: false})
+          db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'f': mkey_value}},{multi: false})
+          end
+       end
     end
     if params[:relationtype] == 'daughter'
-      if params[:ux] != ''
-      db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'f': params[:id]}},{multi: false})
-      db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'m': params[:ux]}},{multi: false})
-      end
-      if params[:vir] != ''
-      db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'f': params[:vir]}},{multi: false})
-      db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'m': params[:id]}},{multi: false})
-      end
+      if params[:rootgender] == 'M'
+        db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'f': params[:id]}},{multi: false})
+          if params[:ux] != ''
+          db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'m': params[:ux]}},{multi: false})
+          else
+          db[:genograms].insert_one('_id': mkey_value.to_i ,familyid: params[:familyid] ,'key': mkey_value.to_i,'fname': 'Unknown','f':'','m':'','s': 'F','vir': [params[:id].to_i],'ux': [],'fillcolor': '#c36cae')
+          db[:genograms].update_one({'_id': params[:id].to_i},{'$addToSet': {'ux': mkey_value}},{multi: false})
+          db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'m': mkey_value}},{multi: false})
+          end
+       end
+      if params[:rootgender] == 'F'
+        db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'m': params[:id]}},{multi: false})
+          if params[:vir] != ''
+          db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'f': params[:vir]}},{multi: false})
+          else
+          db[:genograms].insert_one('_id': mkey_value.to_i ,familyid: params[:familyid] ,'key': mkey_value.to_i,'fname': 'Unknown','f':'','m':'','s': 'M','ux': [params[:id].to_i],'vir': [],'fillcolor': '#064666')
+          db[:genograms].update_one({'_id': params[:id].to_i},{'$addToSet': {'vir': mkey_value}},{multi: false})
+          db[:genograms].update_one({'_id': @genogram._id.to_i},{'$set': {'f': mkey_value}},{multi: false})
+          end
+       end
     end
     if params[:relationtype] == 'spouse'
       if @genogram.s == 'M'

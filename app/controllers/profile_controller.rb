@@ -96,6 +96,15 @@ end
     @genogram.mobile = params[:mobile]
     @genogram.dob = params[:dob]
     @genogram.s = params[:gender]
+    if @genogram.s == 'M'
+       @genogram.fillcolor = '#064666'
+    end
+    if @genogram.s == 'F' 
+       @genogram.fillcolor = '#c36cae'
+    end
+    if params[:risalive] == 'false'
+      @genogram.fillcolor = '#c91515'
+    end
     @genogram.f = ''
     @genogram.m = ''
     @genogram.ux = []

@@ -88,7 +88,24 @@ button:hover {
 .step.finish {
   background-color: #5c4ee5;
 }
+#pageloader
+{
+  background: rgba( 255, 255, 255, 0.8 );
+  display: none;
+  height: 100%;
+  position: fixed;
+  width: 100%;
+  z-index: 9999;
+}
 
+#pageloader img
+{
+  left: 50%;
+  margin-left: -32px;
+  margin-top: -32px;
+  position: absolute;
+  top: 50%;
+}
 
 </style>
 <body>
@@ -198,7 +215,9 @@ button:hover {
     <span class="step"></span>
   </div>
 <% end %>
-
+<div id="pageloader">
+   <img src="http://cdnjs.cloudflare.com/ajax/libs/semantic-ui/0.16.1/images/loader-large.gif" alt="processing..." />
+</div>
 <script>
 var currentTab = 0; // Current tab is set to be the first tab (0)
 showTab(currentTab); // Display the current tab
@@ -272,6 +291,7 @@ function nextPrev(n) {
   if (currentTab >= x.length) {
     // ... the form gets submitted:
     document.getElementById("regForm").submit();
+     $("#pageloader").fadeIn();
     return true;
   }
   // Otherwise, display the correct tab:
