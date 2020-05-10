@@ -83,7 +83,7 @@ skip_before_action :verify_authenticity_token
       db[:genograms].update_one({'_id': params[:m].to_i},{'$addToSet': {'vir': @genogram._id}},{multi: false})
     end
     if params[:m] == ''
-      db[:genograms].insert_one('_id': mkey_value.to_i ,familyid: params[:familyid] ,'key': mkey_value.to_i,'fname': 'Unknown','f':'','m':'','s': 'F','vir': [@genogram._id.to_i],'fillcolor': '#c36cae')
+      db[:genograms].insert_one('_id': mkey_value.to_i ,familyid: params[:familyid] ,'key': mkey_value.to_i,'fname': 'Unknown','f':'','m':'','s': 'F','vir': [@genogram._id.to_i],'ux': [],'fillcolor': '#c36cae')
       db[:genograms].update_one({'_id': params[:id].to_i},{'$set': {'m': mkey_value}},{multi: false})
     end
     end
