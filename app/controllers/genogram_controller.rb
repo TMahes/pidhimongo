@@ -85,6 +85,7 @@ skip_before_action :verify_authenticity_token
     if params[:m] == ''
       db[:genograms].insert_one('_id': mkey_value.to_i ,familyid: params[:familyid] ,'key': mkey_value.to_i,'fname': 'Unknown','f':'','m':'','s': 'F','vir': [@genogram._id.to_i],'ux': [],'fillcolor': '#c36cae')
       db[:genograms].update_one({'_id': params[:id].to_i},{'$set': {'m': mkey_value}},{multi: false})
+      db[:genograms].update_one({'_id': @genogram.id.to_i},{'$addToSet': {'ux': mkey_value}},{multi: false})
     end
     end
     if params[:relationtype] == 'mother'
