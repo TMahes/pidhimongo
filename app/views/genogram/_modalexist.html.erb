@@ -1,0 +1,36 @@
+  <div class="modal-header">
+      <h5 class="modal-title"> Member Already Available </h5>
+      <button class="close" data-dismiss="modal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <% @profiles.each do | profile| %>
+<div class="profile_container">
+        <div class="col-xs-12 col-sm-6 col-md-12">
+            <div class="well well-sm">
+                <div class="row">
+                <div class="relation_name"><%= profile.relation_type %>  </div>
+                    <div class="col-sm-6 col-md-4">
+                          <% if profile.avatar? %>
+      <%= image_tag profile.avatar.url(:thumb), :class => "img-rounded img-responsive" %>
+    <% end %>
+                    </div>
+                    <div class="col-sm-6 col-md-8">
+                        <h4>
+                        <%= profile.fname  %> </h4>
+                        <p>
+                            <i class="glyphicon glyphicon-envelope"></i><%= profile.email %>
+                            <br />
+                           <!--  <i class="glyphicon glyphicon-globe"></i><a href="http://www.jquery2dotnet.com">www.jquery2dotnet.com</a>
+                            <br /> -->
+                            <i class="glyphicon glyphicon-gift"></i><%= profile.dob %></p>
+                        <!-- Split button -->
+                       <%  @geno = Profile.find_by(email:profile.email.to_s) %>
+                         <%= link_to "View Tree",readonly_genogram_path(:familyid=>@geno.familyid),:class => "btn btn-info" %>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+<% end %>
+    </div>
+  

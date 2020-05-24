@@ -4,7 +4,7 @@ Rails.application.routes.draw do
   end
   post "/graphql", to: "graphql#execute"
   #devise_for :users
-  devise_for :users, :controllers => {:registrations => "registrations"}
+  devise_for :users, :controllers => {:registrations => "registrations" , sessions: "sessions"}
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
 
@@ -43,11 +43,14 @@ Rails.application.routes.draw do
   get 'family_tree', to: 'family#showTree'
   get 'genogram_tree', to: 'genogram#showTree'
   post 'genogram_upload', to: 'genogram#updateImage'
+  post 'genogram_delete', to: 'genogram#deleteDocument'
   post 'genogram_edit', to: 'genogram#edit_field'
   get 'show_tree', to: 'build_tree#showTree'
   get 'getTreeData', to: 'profile#getTreeData'
   get 'getFamilyData', to: 'family#getFamilyData'
   get 'getGenogramData', to: 'genogram#getGenogramData'
+  get 'readonlygenogramData', to: 'genogram#readonlygenogramData'
+  get 'readonly_genogram', to: 'genogram#readonlygenogram'
   post 'getFamilyJsonData', to: 'family#getFamilyJsonData'
   get 'view_profile', to: 'build_tree#viewProfile'
   get 'search_path', to: 'profile#searchProfile' , :defaults => { :format => 'text/html' }

@@ -27,7 +27,7 @@ class Profile
     field :updated_at
     field :relation_id
     field :relation_type
-    field :family_id
+    field :familyid
     field :avatar
     field :father_name
     has_many :users

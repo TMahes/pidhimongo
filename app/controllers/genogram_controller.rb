@@ -5,27 +5,36 @@ skip_before_action :verify_authenticity_token
 
 
   def addtoGenogram
-        @user = User.new
+=begin    @user = User.new
     @user.name = params[:firstname]
     @user.email = params[:remail]
     @user.mobile = params[:rmobile]
     @user.password = "password123"
     @user.password_confirmation = "password123"
-    @user.save
+=end
     #Creating Profile
+    if Profile.where(email: params[:remail]).exists?
+      @profiles = Profile.where(email: params[:remail])
+    respond_to do |format|
+     #format.html {render '_mailexist', :locals => { :emailexist => true }}
+     #format.json {render :json =>{:email => params[:remail]}}
+     format.js {render "mailexist" , :locals => {:profiles => @profiles} }
+    end
+  else
+    #@user.save
      @profile = Profile.new
     db = Mongoid::Clients.default
-    collection = db[:pidhi_tree]
     @profile.userid = current_user.id
-    @profile.regid = @user.id
+    #@profile.regid = @user.id
     @profile.fname = params[:firstname]
+    @profile.familyid = params[:familyid]
     @profile.lname = params[:flastname]
     @profile.email = params[:remail]
     @profile.mobile = params[:rmobile]
     @profile.dob = params[:rdob]
     @profile.avatar = params[:avatar]
+    
     @profile.save
-
     #Creating/Adding Family tree
     f = (10000..99999).to_a.shuffle 
     m = (100000..999999).to_a.shuffle 
@@ -74,6 +83,12 @@ skip_before_action :verify_authenticity_token
     @genogram.avatar = params[:avatar]
     @genogram.save
     @cuser = Genogram.find_by(_id:@genogram.id.to_i)
+    @sprofile = Profile.find_by(email:params[:remail])
+    logger.debug "444444444444444444444444#{@cuser.email}"
+    logger.debug "444444444444444444444444#{@sprofile._id}"
+    profileemail = @cuser.email
+    sprofileid = @sprofile._id
+    ProfileMailer.with(genogram: profileemail).welcome_profile(sprofileid).deliver_now
     #update image path 
      db[:genograms].update_one({'_id': @genogram.id.to_i},{'$set': {'img': @cuser.avatar.url(:thumb)}},{multi: false})
 
@@ -184,11 +199,16 @@ skip_before_action :verify_authenticity_token
   format.js {render inline: "location.reload();" }
 end
   end
- 
+ end
+
    def showTree
     render 'genogram_tree'
   end
-
+  def readonlygenogram
+     respond_to do |format|
+    format.html {render "readonly_genogram" , :locals => {:familyid => params[:familyid]} }
+  end
+  end
   def getGenogramData
       db = Mongoid::Clients.default
       collection = db[:genograms]
@@ -199,6 +219,16 @@ end
      format.json {render :json =>{:doc => @doc}}
    end
   end
+  def readonlygenogramData
+    db = Mongoid::Clients.default
+      collection = db[:genograms]
+      @doc = collection.find(familyid: params[:familyid].to_s)
+    logger.debug "data=================#{@doc}"
+    respond_to do |format|
+     format.html 
+     format.json {render :json =>{:doc => @doc}}
+  end
+end
   def updateImage
     db = Mongoid::Clients.default
     avatar = params[:file]
@@ -228,6 +258,18 @@ end
      end
     logger.debug "==============================#{name}#{value}#{id}"
      render json: {response: "success"}
+  end
+  def deleteDocument
+    db = Mongoid::Clients.default
+    key = params[:key]
+    @cuser = Genogram.find_by('_id': key.to_i)
+   
+    @cuser.vir.each do |p|
+       db[:genograms].update_one({'_id': p.to_i},{'$pull': {'ux': key}})
+     end
+    #db[:genograms].delete_one({'_id': key.to_i});
+
+    render json: {response: "success"}
   end
 end
 

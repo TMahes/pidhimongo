@@ -1,4 +1,4 @@
-      <% flash.each do |type, msg| %>
+       <% flash.each do |type, msg| %>
       <div class="alert alert-info">
         <%= msg %>
       </div>
@@ -214,6 +214,7 @@
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } } 
   </style>
 <div id="loading-overlay">
+	<input type="text" name="familyid" id="familyid" value="<%= params[:familyid] %>">
     <div class="loading-icon"></div>
 </div>  
   <script id="code">
@@ -221,10 +222,12 @@
                   var obj;
                   var jsonData = new Array();
            $(document).ready(function(){ 
+           	var familyid = $("#familyid").val();
            $.ajax({
                   type: 'GET',
+                  data: {familyid:familyid},
                   contentType: 'application/json; charset=utf-8',
-                  url: '/getGenogramData',
+                  url: '/readonlygenogramData',
                   dataType: 'json',
                   success: function(data){
                   jsonData = data.doc;
@@ -341,16 +344,6 @@
 });
 
     //=======================================================HyperText end
-    //
-      // This is the actual HTML context menu:
-      var cxElement = document.getElementById("contextMenu");
-
-      // Since we have only one main element, we don't have to declare a hide method,
-      // we can set mainElement and GoJS will hide it automatically
-      var myContextMenu = $(go.HTMLInfo, {
-        show: showContextMenu,
-        hide: hideContextMenu
-      });
 
       myDiagram.nodeTemplate =
         $(go.Node, "Auto",
@@ -465,7 +458,7 @@
                 e.diagram.commitTransaction("toggled visibility of dependencies");
               }
             }),
-              $(go.Picture, { source: "/assets/add.png", background: "white", row: 2, column: 1, width: 20, height: 20,alignment: go.Spot.Right,contextMenu: myContextMenu }),            
+              $(go.Picture, { source: "/assets/add.png", background: "white", row: 2, column: 1, width: 20, height: 20,alignment: go.Spot.Right}),            
         ));
 
       function collapseFrom(node, start) {
@@ -559,89 +552,9 @@
               }
             }),
            //contextMenu icon
-              $(go.Picture, { source: "/assets/add.png", background: "white", row: 2, column: 1, width: 20, height: 20,alignment: go.Spot.Right,contextMenu: myContextMenu }),
-               { click: function(e, obj) { contextMenu: myContextMenu } }, 
+              $(go.Picture, { source: "/assets/add.png", background: "white", row: 2, column: 1, width: 20, height: 20,alignment: go.Spot.Right}),
         ));
-       myDiagram.contextMenu = myContextMenu;
-          // We don't want the div acting as a context menu to have a (browser) context menu!
-      cxElement.addEventListener("contextmenu", function(e) {
-        e.preventDefault();
-        return false;
-      }, false);
-      function hideCX() {
-        if (myDiagram.currentTool instanceof go.ContextMenuTool) {
-          myDiagram.currentTool.doCancel();
-        }
-      }
-
-      function showContextMenu(obj, diagram, tool) {
-        // Show only the relevant buttons given the current state.
-        
-        var cmd = diagram.commandHandler;
-
-        var hasMenuItem = false;
-        //console.log(nodeDataArray)
-        function maybeShowItem(elt, pred) {
-          if (pred) {
-            elt.style.display = "block";
-            hasMenuItem = true;
-            
-          } else {
-            elt.style.display = "none";
-          }
-        }
-      var model = diagram.model;
-      var dataObj = "";
-      var nodeDataArray = model.nodeDataArray;
-      diagram.selection.each(function(node) {
-        dataObj = node.data
-      })
-        //father dropdown
-        if(dataObj.f != '') {maybeShowItem(document.getElementById("Father"));}
-        else{ maybeShowItem(document.getElementById("Father"),  cmd.canCopySelection()); }
-        //mother dropdown
-        if(dataObj.m != '') { maybeShowItem(document.getElementById("Mother")); }
-        else{ maybeShowItem(document.getElementById("Mother"), cmd.canCopySelection());}
-        //sister dropdown
-        maybeShowItem(document.getElementById("Sister"), cmd.canCopySelection());
-        //brother dropdown
-        maybeShowItem(document.getElementById("Brother"), cmd.canCopySelection());
-        //son dropdown
-        if(dataObj.ux.length > 1){maybeShowItem(document.getElementById("Son"));}
-        else{maybeShowItem(document.getElementById("Son"), cmd.canDeleteSelection());}
-        //daughter dropdown
-        if(dataObj.ux.length > 1 ) {maybeShowItem(document.getElementById("Daughter"));}
-        else{maybeShowItem(document.getElementById("Daughter"), cmd.canDeleteSelection());}
-        //spouse dropdown
-        maybeShowItem(document.getElementById("Spouse"), cmd.canDeleteSelection());
-
-        // Now show the whole context menu element
-        if (hasMenuItem) {
-          cxElement.classList.add("show-menu");
-          // we don't bother overriding positionContextMenu, we just do it here:
-          var mousePt = diagram.lastInput.viewPoint;
-          cxElement.style.left = mousePt.x + 5 + "px";
-          cxElement.style.top = mousePt.y + "px";
-        }
-
-        // Optional: Use a `window` click listener with event capture to
-        //           remove the context menu if the user clicks elsewhere on the page
-        window.addEventListener("click", hideCX, true);
-      }
-
-      function hideContextMenu() {
-        cxElement.classList.remove("show-menu");
-        // Optional: Use a `window` click listener with event capture to
-        //           remove the context menu if the user clicks elsewhere on the page
-        window.removeEventListener("click", hideCX, true);
-      }
-
-    // This is the general menu command handler, parameterized by the name of the command.
-
-        // A custom command, for changing the color of the selected node(s).
-
-
-
+  
       // the representation of each label node -- nothing shows on a Marriage Link
       myDiagram.nodeTemplateMap.add("LinkLabel",
         $(go.Node, { name: "OBJSHAPE",selectable: true, width: 1, height: 1, fromEndSegmentLength: 20 }));
@@ -1409,240 +1322,11 @@
  }
   </script>
 <body>
-<div id="sample" style="position: relative;">
+	<div id="sample" style="position: relative;">
   <div id="myDiagramDiv" style="background-color: #34343C; border: solid 1px black; height: 570px;"></div></div>
-      <ul id="contextMenu" class="menu">
-        <li id="Father" class="menu-item" onclick="cxcommand(event)">Father</li>
-        <li id="Mother" class="menu-item" onclick="cxcommand(event)">Mother</li>
-        <li id="Brother" class="menu-item" onclick="cxcommand(event)">Brother</li>
-        <li id="Sister" class="menu-item" onclick="cxcommand(event)">Sister</li>
-        <li id="Son" class="menu-item" onclick="cxcommand(event);">Son</li>
-        <li id="Daughter" class="menu-item" onclick="cxcommand(event);">Daughter</li>
-        <li id="Spouse" class="menu-item" onclick="cxcommand(event);">Spouse</li>
-        
-      </ul>
-
-</div>
-
-<div class="modal" id="response">
-<div class="modal-dialog">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h5 class="modal-title"> </h5>
-      <button class="close" data-dismiss="modal">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="list-group">
-        <div class="d-flex w-100 justify-content-between">
-          <div class="row">
-            <%= bootstrap_form_tag :url => "/build_genogram", :remote => true, :html => {
-                                                  :id => 'regForm', :name => 'relationDetails,', :'data-ajax' => false, :multipart => true } do |f| %>
-                    <div class="col-md-6">
-                         <%= f.hidden_field :id, value:"" %>
-                         <%= f.hidden_field :familyid, value:"" %>
-                         <%= f.hidden_field :gender, value:"" %>
-                         <%= f.hidden_field :relationtype, value:"" %>
-                         <%= f.hidden_field :familyid, value:"" %>
-                         <%= f.hidden_field :f, value:"" %>
-                         <%= f.hidden_field :m, value:"" %>
-                         <%= f.hidden_field :ux, value:"" %>
-                         <%= f.hidden_field :vir, value:"" %>
-                          <%= f.hidden_field :rootgender, value:"" %>
-                         
-
-                      <%= f.text_field :firstname, label: "First Name",
-                              placeholder: 'FirstName...',
-                              class: 'form-control' %>
-                      <%= f.text_field :midname, label: "Middle Name",
-                              placeholder: 'MiddleName...',
-                              class: 'form-control' %>
-                    </div>
-
-                     <div class="col-md-6">
-                       <%= f.text_field :flastname, label: " Last Name",
-                               placeholder: 'LastName...',
-                               class: 'form-control' %>
-
-                               <%= f.text_field :otherNames, label: "Any other Names",
-                                       placeholder: 'Known by other Names...',
-                                       class: 'form-control' %>
-                     </div>
-
-                  <div class="col-md-6">
-                    <%= f.email_field :remail,  label: "Email",
-                              placeholder: 'email' ,
-                              class: 'form-control' %>
-
-                    </div>
-                        <div class="col-md-6">
-                  <%= f.file_field "avatar" %>
-
-        </div>
-                  <div class="col-md-6">
-                    <%= f.phone_field :rmobile, label: "Mobile No",
-                            placeholder:'Mobile' ,
-                            class: 'form-control' %>
-                  </div>
-
-                  <div class="col-md-6">
-                    <%= f.date_field :rdob, label: "Date of Birth",
-                            placeholder: 'Date of Birth...',
-                            class: 'form-control' %>
-
-                    <%= f.select :rbloodgroup, [["O+", 1], ["O-", 2],["A+",3],["A-",4]], { class: "selectpicker" } %>
-                    </div>
-
-                    <div class="col-md-6">
-                      <%= f.select :risalive, [["Yes", true], ["No", false]], { class: "selectpicker", label:"Is Living" } %>
-                      <%= f.select :rsibling, [["", ""],[1, 1], [2, 2],[3, 3],[4, 4],[5, 5],[6, 6],[7, 7],[8, 8]], { class: "selectpicker",label:"Child Order" } %>
-        </div>
-        <div id="div-extraname" class="col-md-6" style="display:none">
-                  <%= f.text_field :beforemarriageName, label: "Other Names Before Marriage",
-                          placeholder: 'Middle names before Marriage...',
-                          class: 'form-control' %>
-
-        </div>
-      </div>
-    </div>
-  </div>
-      <div class="modal-footer">
-       <%= f.submit "Add Details", class:"btn btn-success", id: "add_details" %>
-        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-      </div>
-    </div>
-  </div>
-</div>
-</div>
-  <% end %> 
-<div class="modal fade bd-example-modal-lg" id="invite">
-<div class="modal-dialog">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h5 class="modal-title"> Invite your Family Member </h5>
-      <button class="close" data-dismiss="modal">&times;</button>
-    </div>
-    <div class="modal-body">
-   <input type="text" name="invite_email" class="form-control" placeholder="Email ID" >
-      <div class="modal-footer">
-        <button class="btn btn-primary" data-dismiss="modal">Invite</button>
-        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-      </div>
-    
-    </div>
-  </div>
-</div>
-</div> 
-
-
-    <div class="modal left fade" id="leftModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="myModalLabel"></h4>
-        </div>
-        <div class="modal-body">
-          <div class="btn-toolbar" role="toolbar">
-                <div class="btn-group btn-group-justified" role="group">
-                <div class="btn-group" role="group">
-                  <button id="list" class="btn btn-primary" data-original-title="Refreshr"><i class="fa fa-user fa-lg" aria-hidden="true"></i><br>Profile</button>
-                </div>
-                <div class="btn-group" role="group">
-                  <button id="new" class="btn btn-primary" data-original-title="New"><i class="fa fa-plus fa-lg" aria-hidden="true"></i><br>Add</button>
-                </div>
-                <div class="btn-group" role="group">
-                  <button id="desact" class="btn btn-primary" data-original-title="Deactivate"><i class="fa fa fa-comments  fa-lg" aria-hidden="true"></i><br>Chat</button>
-                </div>
-                <div class="btn-group" role="group">
-                  <button id="delete" class="btn btn-danger" data-original-title="Delete"><i class="fa fa-trash-o fa-lg" aria-hidden="true"></i><br>Delete</button>
-                </div>
-                </div>
-            </div>
-             <hr class="style8">
-             <center>
-           <img src="/assets/missing.png" id="uimage" class="img-thumbnail" data-toggle="modal" data-target="#uploadModal"><i class="fa fa-pencil-square-o  fa-lg" aria-hidden="true" width="200" height="200"></i></img></center>
-           <hr class="style8">
-              <div class="listing-tab col-md-12">
-                  <!-- Nav tabs -->
-                  <ul class="nav nav-tabs" id="myTabs" role="tablist">
-                    <li role="presentation" class="active"><a href="#track" aria-controls="track" role="tab" data-toggle="tab">Details</a></li>
-                    <li role="presentation"><a href="#albums" aria-controls="albums" role="tab" data-toggle="tab">About</a></li>
-                  </ul>
-                
-                  <!-- Tab panes -->
-                  <div class="tab-content">
-                    <div role="tabpanel" class="tab-pane active" id="track">
-                       <input type="hidden" name="key" id="skey" value="" />
-                       <input type="hidden" name="key" id="semail" value="" />
-                        <ul>
-                  <li>First Name<span><a href="#" id="fname"></a></span></li>
-                            <li>Last Name<span><a href="#" id="lname"></a></span></li>
-                            <li>DOB<span><a href="#" id="dob"></a></span></li>
-                            <li>Nick Name<span><a href="#" id="oname"></a></span></li>
-                            <li>Mobile No<span><a href="#" id="mobile"></a></span></li>
-                            <li>Email<span><a href="#" id="email"></a></span></li>
-                            <li>Sibling<span><a href="#" id="sibling"></a></span></li>
-                            <li>IsAlive<span><a href="#" id="isalive"></a></span></li>
-                        </ul>
-                        <div class="related-artist">
-                            <h3>Active Family Members</h3>
-                            <div class="col-md-12">
-                                <div class="col-md-4 artist-next"><img src="http://i.ytimg.com/i/vWtix2TtWGe9kffqnwdaMw/mq1.jpg" alt="" >Mother</div>
-                                <div class="col-md-4 artist-next"><img src="http://i.ytimg.com/i/U6cE7pdJPc6DU2jSrKEsdQ/mq1.jpg" alt="" >Father</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div role="tabpanel" class="tab-pane" id="albums">
-                    </div>
-                  </div>
-            </div>
-        </div>
-      </div><!-- modal-content -->
-    </div><!-- modal-dialog -->
-  </div><!-- modal -->
-  <!-- Image Modal -->
-<div id="uploadModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Upload Image</h4>
-      </div>
-      <div class="modal-body">
-        <!-- Form -->
-        <form method='post' action='' enctype="multipart/form-data">
-          Select file : <input type='file' name='file' id='file' class='form-control' ><br>
-          <input type="hidden" name="key" id="key" value="">
-          <img src='/assets/missing.png' width='100' height='100' style='display: inline-block;' id="preview">
-          <input type='button' class='btn btn-info' value='Upload' id='btn_upload'>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="invite2" role="dialog">
-<div class="modal-dialog">
-  <div class="modal-content">
-  </div>
-</div>
-</div> 
-
 <script type="text/javascript">
   $.fn.editable.defaults.mode = 'popup';
   $(document).ready(function(){
-    $(document).ajaxStart(function(){
-  // Show image container
-  console.log("Ajax start");
-  $("#loading-overlay").show();
-});
-$(document).ajaxComplete(function(){
-  // Hide image container
-  $("#loading-overlay").hide();
-  console.log("Ajax complete");
-});
   $('#btn_upload').click(function(){
     var fd = new FormData();
     var email = $('#semail').val();

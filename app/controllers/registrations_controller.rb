@@ -8,7 +8,8 @@ class RegistrationsController < Devise::RegistrationsController
                                   :mobile,
                                   :password,
                                   :password_confirmation,
-                                  :familyid)
+                                  :familyid,
+                                  :from_invite)
   end
 
   def account_update_params
@@ -23,8 +24,14 @@ class RegistrationsController < Devise::RegistrationsController
 
   protected
 
-  def after_sign_up_path_for(resource)
-    '/profile' # Or :prefix_to_your_route
+
+  def after_sign_in_path_for(resource)
+    # return the path based on resource
+    logger.debug "iiiiiiiiiiiiii#{resource.email}"
+    '/profile'  
   end
-  
+  def after_inactive_sign_up_path_for(resource)
+   flash[:notice] = "Verification Mail sent to your email please verify to login" 
+   '/login'  
+   end
 end
