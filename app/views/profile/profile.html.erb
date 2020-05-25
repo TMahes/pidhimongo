@@ -136,7 +136,7 @@ button:hover {
 <%= f.text_field :mobile, hide_label: true, :readonly => true,
         value:current_user.mobile ,
         class: 'form-control' %>
-<%= f.date_field :dob, hide_label: true,
+<%= f.text_field :dob, hide_label: true,
         placeholder: 'Date of Birth...',
         class: 'form-control' %>
     <br>
@@ -148,27 +148,6 @@ button:hover {
 
   </div>
   <div class="tab">Place Details:
-
-    <%= f.text_field :nVillage, hide_label: true,
-               placeholder: 'Native Village',
-               class: 'form-control' %>
-    <%= f.text_field :nThaluka, hide_label: true,
-                      placeholder: 'Native Taluka',
-                          class: 'form-control' %>
-    <%= f.text_field :nDistrict, hide_label: true,
-                      placeholder: 'Native District',
-                      class: 'form-control' %>
-    <%= f.text_field :nCity, hide_label: true,
-            placeholder: 'Native City...',
-            class: 'form-control' %>
-    <%= f.text_field :nState, hide_label: true,
-            placeholder: 'Native State...',
-            class: 'form-control' %>
-   <%= f.text_field :nCountry, hide_label: true,
-            placeholder: 'native Country...',
-            value: 'India' %>
-
-    <%= f.check_box :terms, label: "Current Details are same as above." %>
 
     <%= f.text_field :cVillage, hide_label: true,
             placeholder: 'Current Village...',
@@ -189,6 +168,28 @@ button:hover {
       <%= f.text_field :cCountry, hide_label: true,
                     placeholder: 'Current Country...',
                     class: 'form-control' %>
+   
+
+    <%= f.check_box :terms, label: "Permanent Details are same as above." %>
+
+ <%= f.text_field :nVillage, hide_label: true,
+               placeholder: 'Native Village',
+               class: 'form-control' %>
+    <%= f.text_field :nThaluka, hide_label: true,
+                      placeholder: 'Native Taluka',
+                          class: 'form-control' %>
+    <%= f.text_field :nDistrict, hide_label: true,
+                      placeholder: 'Native District',
+                      class: 'form-control' %>
+    <%= f.text_field :nCity, hide_label: true,
+            placeholder: 'Native City...',
+            class: 'form-control' %>
+    <%= f.text_field :nState, hide_label: true,
+            placeholder: 'Native State...',
+            class: 'form-control' %>
+   <%= f.text_field :nCountry, hide_label: true,
+            placeholder: 'native Country...',
+            value: 'India' %>
   </div>
 
 <div class="tab">Upload Your Picture:
@@ -223,9 +224,16 @@ var currentTab = 0; // Current tab is set to be the first tab (0)
 showTab(currentTab); // Display the current tab
 
 $( function() {
-    $( "#datepicker" ).datepicker();
+    $( "#dob" ).datepicker({
+        format: 'mm-dd-yyyy',
+        endDate: '-100:+0',
+        autoclose: true
+    });
   } );
-
+$('input[type=submit]').click(function() {
+    $(this).attr('disabled', 'disabled');
+    $(this).parents('form').submit();
+});
   function showDiv1() {
     var x = document.getElementById('sibling2');
     if (x.style.display === "none") {
@@ -243,18 +251,18 @@ $( function() {
 
                     $('#terms').change(function() {
                            if ($(this).is(':checked')) {
-                              var cvill = $('#nVillage').val();
-                              var nTalk = $('#nThaluka').val();
-                              var nDist = $('#nDistrict').val();
-                              var nState = $('#nState').val();
-                              var nCity = $('#nCity').val();
-                              var nCountry = $('#nCountry').val();
-                               $('#cVillage').val(cvill);
-                               $('#cThaluka').val(nTalk);
-                               $('#cDistrict').val(nDist);
-                               $('#cState').val(nState);
-                               $('#cCity').val(nCity);
-                               $('#cCountry').val(nCountry);
+                              var cvill = $('#cVillage').val();
+                              var nTalk = $('#cThaluka').val();
+                              var nDist = $('#cDistrict').val();
+                              var nState = $('#cState').val();
+                              var nCity = $('#cCity').val();
+                              var nCountry = $('#cCountry').val();
+                               $('#nVillage').val(cvill);
+                               $('#nThaluka').val(nTalk);
+                               $('#nDistrict').val(nDist);
+                               $('#nState').val(nState);
+                               $('#nCity').val(nCity);
+                               $('#nCountry').val(nCountry);
                            }
                        });
 
