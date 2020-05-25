@@ -28,3 +28,4 @@
 public/system/genograms/avatars
 public/system/profiles
 /Gemfile
+config/environments/development.rb

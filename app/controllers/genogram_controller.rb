@@ -33,8 +33,8 @@ skip_before_action :verify_authenticity_token
     @profile.mobile = params[:rmobile]
     @profile.dob = params[:rdob]
     @profile.avatar = params[:avatar]
-    
     @profile.save
+    ProfileMailer.with(profile: @profile).welcome_profile.deliver_now
     #Creating/Adding Family tree
     f = (10000..99999).to_a.shuffle 
     m = (100000..999999).to_a.shuffle 
@@ -83,12 +83,6 @@ skip_before_action :verify_authenticity_token
     @genogram.avatar = params[:avatar]
     @genogram.save
     @cuser = Genogram.find_by(_id:@genogram.id.to_i)
-    @sprofile = Profile.find_by(email:params[:remail])
-    logger.debug "444444444444444444444444#{@cuser.email}"
-    logger.debug "444444444444444444444444#{@sprofile._id}"
-    profileemail = @cuser.email
-    sprofileid = @sprofile._id
-    ProfileMailer.with(genogram: profileemail).welcome_profile(sprofileid).deliver_now
     #update image path 
      db[:genograms].update_one({'_id': @genogram.id.to_i},{'$set': {'img': @cuser.avatar.url(:thumb)}},{multi: false})
 

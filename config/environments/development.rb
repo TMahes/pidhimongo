@@ -36,10 +36,10 @@ Rails.application.configure do
   config.action_mailer.perform_caching = true
   config.action_mailer.perform_deliveries = true
   config.action_mailer.delivery_method = :smtp
-   config.action_mailer.default_url_options = { host: 'localhost:80' }
+   config.action_mailer.default_url_options = { host: 'localhost:3000' }
    config.action_mailer.smtp_settings = {
     user_name:      'freeindianshop3@gmail.com',
-    password:       'Mahes@98',
+    password:       'qbyvzbvssqkngcwk',
     from:           'admin@lelyaa.in',
     domain:         'localhost:3000',
     address:       'smtp.gmail.com',
