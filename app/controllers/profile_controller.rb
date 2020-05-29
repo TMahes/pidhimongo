@@ -70,7 +70,6 @@ end
     @genogram.save
     UserMailer.with(genogram: @genogram).welcome_email.deliver_now
     @cuser = Genogram.find_by(_id:@genogram.id)
-    logger.debug "666666666666666666666666666#{@cuser.email}"
     db[:genograms].update_one({'_id': @genogram.id},{'$set': {'img': @cuser.avatar.url(:thumb)}},{multi: false})
     db[:users].update_one({'_id': current_user.id},{'$set': {'familyid': @genogram.familyid.to_s }},{multi: false})
     redirect_to '/confirm'

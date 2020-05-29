@@ -96,7 +96,8 @@
                             <i class="glyphicon glyphicon-gift"></i><%= profile.dob %></p>
                         <!-- Split button -->
                         <%= link_to "View Profile",view_profile_path(:id=>profile.id),:class => "btn btn-info" %>
-                          <%= link_to image_tag('/assets/chat.png',:class => "chat_image"), conversations_path(user_id: profile.regid), remote: true, method: :post %>
+
+                          <%= link_to image_tag('/assets/chat.png',:class => "chat_image"), conversations_path(user_id: profile.email), remote: true, method: :post %>
                     </div>
                 </div>
             </div>

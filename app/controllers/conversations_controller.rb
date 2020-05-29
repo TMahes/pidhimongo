@@ -1,7 +1,8 @@
 class ConversationsController < ApplicationController
   def create
-    @conversation = Conversation.get(current_user.id, params[:user_id])
-    logger.debug "userrrrrrrid#{current_user.id}"
+    @receiver = User.find_by(email:params[:user_id])
+    @conversation = Conversation.get(current_user.id, @receiver._id.to_s)
+    logger.debug "userrrrrrrid#{params[:user_id]}"
     add_to_conversations unless conversated?
     respond_to do |format|
       format.js

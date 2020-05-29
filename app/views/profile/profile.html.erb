@@ -109,7 +109,14 @@ button:hover {
 
 </style>
 <body>
-
+<% flash.each do |type, msg| %>
+      <div class="alert alert-info">
+        <%= msg %>
+      </div>
+    <% end %>
+    <script type="text/javascript">
+      $(".alert" ).fadeOut(6000);
+    </script>
 <%= bootstrap_form_tag url: '/profile', :html => {
                             :id => 'regForm' } do |f| %>
   <h1>Build your profile with xPidhi</h1>

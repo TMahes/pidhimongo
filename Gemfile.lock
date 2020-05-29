@@ -208,6 +208,7 @@ GEM
     rb-fsevent (0.10.3)
     rb-inotify (0.10.0)
       ffi (~> 1.0)
+    redis (4.1.4)
     regexp_parser (1.6.0)
     remotipart (1.4.4)
     responders (3.0.0)
@@ -303,6 +304,7 @@ DEPENDENCIES
   rails (~> 5.2.3)
   ransack!
   ransack-mongoid!
+  redis (~> 4.0)
   remotipart (~> 1.2)
   sass-rails (~> 5.0)
   selenium-webdriver

@@ -4,4 +4,6 @@ class Message
   field :user_id, type: String
   belongs_to :conversation
   belongs_to :user
+
+  after_create { MessageBroadcastJob.perform_later(self) }
 end

@@ -26,6 +26,7 @@ class Conversation
   end
 
   def opposed_user(user)
+    logger.debug "xxxxxxxxxxxxxxxxxxxxx#{sender}"
     user == recipient ? sender : recipient
   end
 end
