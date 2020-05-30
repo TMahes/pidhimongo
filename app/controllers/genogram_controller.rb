@@ -3,7 +3,12 @@ class GenogramController < ApplicationController
 skip_before_action :verify_authenticity_token
 
 
-
+  def genogram_tree
+    session[:conversations] ||= []
+    @users = User.all
+    @conversations = Conversation.includes(:recipient, :messages)
+                                 .find(session[:conversations])
+  end
   def addtoGenogram
 =begin    @user = User.new
     @user.name = params[:firstname]
@@ -196,6 +201,10 @@ end
  end
 
    def showTree
+    session[:conversations] ||= []
+    @users = User.all
+    @conversations = Conversation.includes(:recipient, :messages)
+                                 .find(session[:conversations])
     render 'genogram_tree'
   end
   def readonlygenogram
