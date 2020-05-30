@@ -18,7 +18,7 @@ App.conversation = App.cable.subscriptions.create("ConversationChannel", {
       else {
         $('#conversations-list').append(data['window']);
         conversation = $('#conversations-list').find("[data-conversation-id='" + data['conversation_id']['$oid'] + "']");
-        conversation.find('.panel-body').toggle();
+        //conversation.find('.panel-body').toggle();
       }
     }
     else {

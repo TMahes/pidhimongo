@@ -28,7 +28,7 @@
     var panel = $(this).parent().parent();
     var messages_list = panel.find('.messages-list');
 
-    panel.find('.panel-body').toggle();
+  //  panel.find('.panel-body').toggle();
     panel.attr('class', 'panel panel-default');
 
     if (panel.find('.panel-body').is(':visible')) {

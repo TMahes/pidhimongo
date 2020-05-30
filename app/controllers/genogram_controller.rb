@@ -243,35 +243,42 @@ end
      render json: {response: @cuser.avatar.url(:thumb)}
   end
     def edit_field
-    db = Mongoid::Clients.default
-    name = params[:name]
-    value = params[:value]
-    id = params[:pk]
-     @cuser = Genogram.find_by(key: params[:pk].to_i)
-     @cuser.update_attributes(name => params[:value])
-     if name == "isalive" && value == "false"
-      @cuser.update_attributes(fillcolor: '#c91515')
-     end
-     if name == "isalive" && value == "true"
-     if @cuser.s == 'M'
-      @cuser.update_attributes(fillcolor: '#064666')
-       elsif @cuser.s =='F'
-        @cuser.update_attributes(fillcolor: '#c36cae')
-    end
-     end
-    logger.debug "==============================#{name}#{value}#{id}"
-     render json: {response: "success"}
+      db = Mongoid::Clients.default
+      name = params[:name]
+      value = params[:value]
+      id = params[:pk]
+      @cuser = Genogram.find_by(key: params[:pk].to_i)
+      @cuser.update_attributes(name => params[:value])
+        if name == "isalive" && value == "false"
+        @cuser.update_attributes(fillcolor: '#c91515')
+        end
+      if name == "isalive" && value == "true"
+        if @cuser.s == 'M'
+          @cuser.update_attributes(fillcolor: '#064666')
+          elsif @cuser.s =='F'
+          @cuser.update_attributes(fillcolor: '#c36cae')
+        end
+      end
+
+      logger.debug "==============================#{name}#{value}#{id}"
+      render json: {response: "success"}
   end
   def deleteDocument
     db = Mongoid::Clients.default
     key = params[:key]
     @cuser = Genogram.find_by('_id': key.to_i)
    
-    @cuser.vir.each do |p|
+=begin    @cuser.vir.each do |p|
        db[:genograms].update_one({'_id': p.to_i},{'$pull': {'ux': key}})
      end
-    #db[:genograms].delete_one({'_id': key.to_i});
-
+=end
+      logger.debug "cusssssssssser#{@cuser.vir}"
+      logger.debug "cusssssssssser#{@cuser.ux}"
+      if @cuser.vir.any? || @cuser.ux.any?
+        db[:genograms].update_one({'key': key.to_i},{'$set': {'img': '','m': '','f': '','mobile': '','fname': 'Unknown', 'email': 'Unknown', 'lname': 'Unknown', 'dob': ''}},{multi: false})
+      else
+      db[:genograms].delete_one({'key': key.to_i});
+      end
     render json: {response: "success"}
   end
 end

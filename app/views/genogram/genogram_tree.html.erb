@@ -246,6 +246,7 @@ ul {
   }
    .col-sm-3{
     float: right;
+    margin-right: -75px;
    }
 
   </style>
@@ -1741,19 +1742,21 @@ $(document).ajaxComplete(function(){
     var value = $('#skey').val();
     var key = 'key';
     //console.log(key);
+        if (confirm("Are you sure?")) {
     $.ajax({
       url: '/genogram_delete',
       type: 'post',
       data: {key:value},
       success: function(response){
         if(response != 0){
+           location.reload(true);
           console.log(response);
         }else{
           $('#error').append("Error on delete");
         }
       }
     });
-  }); 
+  }}); 
   $('#chat').click(function(){
     var value = $('#semail').val();
     var key = 'user_id';
@@ -1764,7 +1767,6 @@ $(document).ajaxComplete(function(){
       type: 'post',
       data: {'user_id':value}
     });
-
   }); 
 });
 
