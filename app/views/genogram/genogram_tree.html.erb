@@ -691,18 +691,21 @@ ul {
       }
 */
   // define the link template
-      myDiagram.linkTemplate =
+      myDiagram.linkTemplate =  // for parent-child relationships
         $(go.Link,
-          { relinkableFrom: true, relinkableTo: true, corner: 10 },
-          $(go.Shape),
-          $(go.Shape, { toArrow: "Standard" }));
-
+          {
+            routing: go.Link.Orthogonal, corner: 5,corner: go.Link.End,
+            layerName: "Background", selectable: true,
+            fromSpot: go.Spot.Bottom, toSpot: go.Spot.Top
+          },
+          $(go.Shape, { stroke: "white", strokeWidth: 2 })
+        );
 
       myDiagram.linkTemplateMap.add("Marriage",  // for marriage relationships
         $(go.Link,
-          { relinkableFrom: true, relinkableTo: true, corner: 10 },
-          $(go.Shape),
-          $(go.Shape, { toArrow: "Standard" })));
+          { selectable: true },
+          $(go.Shape, { strokeWidth: 2.5, stroke: "red" /* blue */ })
+        ));
 
 
       // n: name, s: sex, m: mother, f: father, ux: wife, vir: husband, a: attributes/markers
