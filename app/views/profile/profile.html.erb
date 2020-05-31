@@ -150,7 +150,7 @@ button:hover {
 
     <%= f.select :gender, [["Male", 'M'], ["Female", 'F'],["Transgender", 'T']], { class: "selectpicker" } %>
 
-    <%= f.select :bloodgroup, [["O+", 1], ["O-", 2],["A+",3],["A-",4]], { class: "selectpicker" } %>
+    <%= f.select :bloodgroup, [["O+", "O+"], ["O-", "O-"],["A+","A+"],["A-","A-"],["B+","B+"],["B-","B-"],["AB-","AB-"],["AB+","AB+"]], { class: "selectpicker" } %>
 <br>
 
   </div>
@@ -204,9 +204,11 @@ button:hover {
   <div class="input-group">
     <span class="input-group-btn">
       <span class="btn btn-small btn-primary btn-inverse" onclick="$(this).parent().find('input[type=file]').click();">Browse</span>
-      <%= f.file_field :avatar, onchange: "$(this).parent().parent().find('.form-control').html($(this).val().split(/[\\\\|/]/).pop());", style: "display: none;" %>
+      <%= f.file_field :avatar, onchange: "$(this).parent().parent().find('.form-control').html($(this).val().split(/[\\\\|/]/).pop());", style: "display: none;", id: "file" %>
     </span>
-    <span class="form-control"></span>
+    
+   
+    <img src="" id="preview"> 
   </div>
   </div>
 
@@ -344,6 +346,19 @@ function fixStepIndicator(n) {
   //... and adds the "active" class on the current step:
   x[n].className += " active";
 }
+function filePreview(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            $('#preview + img').remove();
+            $('#preview').after('<img src="'+e.target.result+'" width="150" height="150" style="margin-left:30px;" />');
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+$("#file").change(function () {
+    filePreview(this);
+});
 </script>
 
 </body>

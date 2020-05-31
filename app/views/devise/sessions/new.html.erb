@@ -10,7 +10,7 @@
                 <div class="signin-content">
                     <div class="signin-image">
                         <figure><img src="assets/FamilyTree.jpg" alt="sing up image"></figure>
-                        <a href="/signup" class="signup-image-link"> I am a new User</a>
+                       <center> <a href="/signup" class="btn btn-success"> I am a new User</a></center>
                     </div>
 
                     <div class="signin-form">
@@ -35,7 +35,7 @@
                          
                         <% end %>
                       
-                         <%= f.submit "Log in", class: 'form-control login-button' %>
+                         <%= f.submit "Log in", class: 'form-control login-button btn-primary' %>
                       <% end %> 
                       <%= render "devise/shared/links" %>
 <!--                         <div class="social-login">

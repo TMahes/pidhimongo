@@ -24,14 +24,14 @@ end
     @profile.bloodgroup = params[:bloodgroup]
     @profile.nVillage = params[:nVillage]
     @profile.avatar = params[:avatar]
-   #@profile.nTaluka = params[:nThaluka]
-    #@profile.nDistrict = params[:nDistrict]
-    #@profile.nCity = params[:nCity]
+    @profile.nTaluka = params[:nThaluka]
+    @profile.nDistrict = params[:nDistrict]
+    @profile.nCity = params[:nCity]
     @profile.nState = params[:nState]
-   # @profile.nCountry = params[:nCountry]
+    @profile.nCountry = params[:nCountry]
     @profile.cVillage = params[:cVillage]
-    #@profile.cTaluka = params[:cThaluka]
-    #@profile.cDistrict = params[:cDistrict]
+    @profile.cTaluka = params[:cThaluka]
+    @profile.cDistrict = params[:cDistrict]
     @profile.cCity = params[:cCity]
     @profile.cState = params[:cState]
     @profile.cCountry = params[:cCountry]
@@ -91,6 +91,38 @@ end
 
 
   def update_details
+    db = Mongoid::Clients.default
+    logger.debug "emmmmmmail #{params[:email]}"
+    @profile = Profile.find_by(email:params[:email])
+    logger.debug "iddddddddddddddd #{@profile.userid}"
+    @profile.userid = params[:userid]
+    @profile.fname = params[:fname]
+    @profile.lname = params[:lname]
+    @profile.familyname = params[:familyname]
+    @profile.email = params[:email]
+    @profile.mobile = params[:mobile]
+    @profile.dob = params[:dob]
+    @profile.bloodgroup = params[:bloodgroup]
+    @profile.nVillage = params[:nVillage]
+    @profile.avatar = params[:avatar]
+    @profile.nTaluka = params[:nThaluka]
+    @profile.nDistrict = params[:nDistrict]
+    @profile.nCity = params[:nCity]
+    @profile.nState = params[:nState]
+    @profile.nCountry = params[:nCountry]
+    @profile.cVillage = params[:cVillage]
+    @profile.cTaluka = params[:cThaluka]
+    @profile.cDistrict = params[:cDistrict]
+    @profile.cCity = params[:cCity]
+    @profile.cState = params[:cState]
+    @profile.cCountry = params[:cCountry]
+    @profile.save
+    @genogram = Genogram.find_by(email:params[:email])
+    @genogram.fname = params[:fname]
+    @genogram.lname = params[:lname]
+    @genogram.save
+    @cuser = Genogram.find_by(_id:@genogram.id)
+    db[:genograms].update_one({'_id': @genogram.id},{'$set': {'img': @cuser.avatar.url(:thumb)}},{multi: false})
     redirect_to '/genogram_tree'
   end
 

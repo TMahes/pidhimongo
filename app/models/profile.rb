@@ -14,15 +14,17 @@ class Profile
     field :gender
     field :bloodgroup
     field :nVillage
-    field :nState
-    field :cVillage
-    field :cCity
-    field :cState
-    field :cCountry
-    field :nVillage
+    field :nTaluka
+    field :nDistrict
     field :nCity
     field :nState
     field :nCountry
+    field :cVillage
+    field :cTaluka
+    field :cCity
+    field :cDistrict
+    field :cState
+    field :cCountry
     field :created_at
     field :updated_at
     field :relation_id

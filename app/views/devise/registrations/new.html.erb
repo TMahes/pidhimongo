@@ -1,11 +1,11 @@
-<div class="container_login">
-    <div class="alert alert-info" role="alert">
+<div class="alert alert-info" role="alert">
   <center>Join Us to build and collaborate with your Family Circle!</center>
 </div>
+<div class="container_login">
 <div class="signin-content">
     <div class="signin-image">
       <figure><img src="assets/FamilyTree.jpg" alt="sing up image"></figure>
-      <a href="/login" class="signup-image-link"> Already registered?</a>
+     <center> <a href="/login" class="btn btn-success"> Already registered?</a></center>
   </div>
      <div class="signin-form">
       
@@ -21,9 +21,9 @@
   <%= f.email_field :email,
 	           placeholder: 'email',
 	           class: 'form-control', value: profile.email %>
-  <%= f.telephone_field :mobile,
+  <%= f.text_field :mobile,
                         placeholder: 'Mobile Number',
-                        class: 'form-control', value: profile.mobile %>
+                        class: 'form-control', value: profile.mobile, min: 10, max: 10  %>
   <%= f.hidden_field :familyid,
                         class: 'form-control', value: profile.familyid %>
   <%= f.hidden_field :from_invite,
@@ -34,7 +34,7 @@
   <%= f.password_field :password_confirmation,
                        placeholder: 'password confirmation',
                        class: 'form-control' %>
-  <%= f.submit 'Sign up', class: 'btn btn-primary sign-up-button' %>
+ <%= f.submit 'Sign up', class: 'btn btn-primary sign-up-button pull-right' %> 
 <% end %>
 <% else %>
 <%= bootstrap_form_for(resource,
@@ -47,9 +47,9 @@
   <%= f.email_field :email,
              placeholder: 'email',
              class: 'form-control' %>
-  <%= f.telephone_field :mobile,
+  <%= f.text_field :mobile,
                         placeholder: 'Mobile Number',
-                        class: 'form-control' %>
+                        class: 'form-control', min: 10, max: 10 %>
   <%= f.hidden_field :familyid,
                         class: 'form-control'%>
   <%= f.hidden_field :from_invite,
